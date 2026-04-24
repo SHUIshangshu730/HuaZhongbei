@@ -151,9 +151,17 @@ Just choose `xelatex', no `pdflatex' or `latex' and so on.}
 % 每行缩进两个汉字
 \setlength\parindent{2em}
 % 设置字体
-\setmainfont{Times New Roman}
+\IfFontExistsTF{Times New Roman}{%
+  \setmainfont{Times New Roman}%
+}{%
+  \setmainfont{Tinos}%
+}
 %\setmonofont{Courier New}
-\setsansfont{Arial}
+\IfFontExistsTF{Arial}{%
+  \setsansfont{Arial}%
+}{%
+  \setsansfont{Arimo}%
+}
 \setCJKfamilyfont{kai}[AutoFakeBold]{simkai.ttf}
 \newcommand*{\kai}{\CJKfamily{kai}}
 \setCJKfamilyfont{song}[AutoFakeBold]{SimSun}

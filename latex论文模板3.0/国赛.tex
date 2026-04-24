@@ -1,0 +1,603 @@
+\documentclass[utf8,12pt]{ctexart} 
+%-------------------------以下是引言区----------可以理解成导包、设置参数的地方-------------
+%\documentclass[utf8]{ctexart} %中文文档类
+\newcommand{\mytitle}[1]{{\large\bfseries\fontsize{16}{16}\selectfont #1}}
+% 题目标题在下面写！题目在下面写！
+% 三号黑体标题
+\title{\mytitle{\heiti \zihao{3} \vspace{-2cm}题目标题}}   
+
+\author{}
+\date{}
+
+\pagestyle{plain}
+\usepackage{paralist} %调整无序列表行距
+%\noindent  %单段取消自动缩进
+%\usepackage{indentfirst} % 首行缩进
+%字体基本操作    
+%粗体：\textbf{jiacu}\textbf{}
+%\usepackage{xeCJK}
+
+%字体调整
+% timenewroman
+%\usepackage{times}   
+%上面这个包中可以使用中文字体，如：\heiti、 \kaishu
+\usepackage{lipsum}
+%下面这个包用来设置字体的大小
+\usepackage{type1cm}
+%使用四级标题
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+%标题设置  如果比赛对标题字号、标题居左有要求，就用下面这段设置标题格式的代码，没有的话就注释掉
+%\iffalse
+\ctexset{
+    % 修改 section。
+    section={   
+        name={,、},
+        number={\chinese{section}}, % 中文的一二三
+        format=\heiti \zihao{-3}, % 设置 section 标题为黑体、右对齐、小3号字，需要左对齐就增加\raggedright
+        %aftername=\hspace{0pt},
+        beforeskip=1ex,
+        afterskip=1ex
+    },
+    % 修改 subsection。
+    subsection={   
+        %name={,.},
+        %number={\arabic{subsection}},
+        format=\heiti\zihao{-4}, % 设置 subsection 标题为黑体、xiaosi号字
+        %aftername=\hspace{0pt},
+        beforeskip=1ex,
+        afterskip=1ex
+    },
+        subsubsection={   
+            %name={,.},
+            %number={\arabic{subsection}},
+            format=\heiti\zihao{-4}, % 设置 subsection 标题为黑体、xiaosi号字
+            %aftername=\hspace{0pt},
+            beforeskip=1ex,
+            afterskip=1ex
+        }
+}
+%\fi
+
+
+%公式调整包
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+%目录自动跳转
+\usepackage{hyperref}
+
+%\usepackage[fontsize=14pt]{fontsize}
+\usepackage{geometry}%调整页边距
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+%封面页页边距
+%\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{ctex}%引入中文包
+%\usepackage{xeCJK}
+%\setCJKmainfont{songti}
+
+%使用特殊字符
+\usepackage{wasysym}
+
+
+%引入表格制作包
+%\renewcommand\arraystretch{1.3}  这个命令是用来修改行高的
+\usepackage{caption}
+\usepackage{tabularray}
+\usepackage{booktabs}
+\usepackage{diagbox} %单格双字
+\usepackage{amsmath}
+\usepackage{verbatimbox}  %调整表格与正文间距
+\usepackage{pdfpages}
+\usepackage{multirow}
+\usepackage{array} %调整表格行高
+\usepackage{longtable}
+
+\captionsetup[table]{labelsep=space} % 表
+\captionsetup[figure]{labelsep=space} % 图  
+\captionsetup{font={small}}  %表名字体大小
+%\usepackage[font=small,labelfont=bf,labelsep=none]{caption}
+
+
+\usepackage{setspace}%使用间距宏包
+%\linespread{1.625}%将行距调整成word里面的1.5杯
+
+%调整摘要的样式,调整的命令必须要放到引言区，不然无效
+\usepackage{abstract}
+%\renewcommand{\abstractnamefont}{\large\bfseries}
+%\renewcommand{\abstractname}{\zihao{-4}\large 摘要\\}
+% 小三 黑体
+\renewcommand{\abstractname}{\fontsize{15pt}{22pt}\heiti 摘要\\}
+
+%用于调整图片的包
+\usepackage{graphicx}\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float} %设置图片浮动位置的宏包
+\usepackage{subfig}%放置子图
+
+\usepackage{indentfirst} %段前缩进包
+
+
+\usepackage{setspace}%局部修改行距包
+
+%附录
+\usepackage{appendix}% 附录
+\usepackage{xcolor} %代码高亮包
+\usepackage{listings,matlab-prettifier} 
+
+%打印代码
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+%\definecolor{backcolour}{rgb}{0.95,0.198,0.120}
+\definecolor{backcolour}{RGB}{	245 ,245, 245}
+
+%设置第一种代码高亮样式
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=4pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+% 设置matlab代码高亮样式
+\lstset{style=mystyle}
+\lstdefinestyle{matlab}{
+    language=Matlab,                       % MATLAB as the language
+    backgroundcolor=\color{white},         % Background color
+    commentstyle=\color{gray},             % Comment style
+    keywordstyle=\color{blue},             % Keyword style
+    numberstyle=\tiny\color{gray},         % Line number style
+    stringstyle=\color{magenta},           % String literal style
+    basicstyle=\footnotesize\ttfamily,     % Default code style
+    breakatwhitespace=false,               % Don't break lines automatically
+    breaklines=true,                       % Wrap long lines
+    captionpos=b,                          % Position of the caption
+    keepspaces=true,                       % Keep spaces in the code, useful for indenting
+    numbers=left,                          % Line numbers on the left
+    numbersep=5pt,                         % Distance of line numbers from code
+    showspaces=false,                      % Show spaces with underscores
+    showstringspaces=false,                % Don't show spaces in strings
+    showtabs=false,                        % Don't show tabs within strings
+    tabsize=4                              % Tab size
+}
+
+%代码黑框，不好看
+\usepackage{mdframed}
+%另一种代码黑框，更好看
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins}
+
+%----------------------------------引言区设置结束------------------------------------------------
+%如果有特殊的封面页要放，麻烦使用wps插入一页
+
+
+\begin{document}
+	%制作摘要
+	\maketitle
+	\vspace{-2.5cm}
+    %\renewcommand{\abstractname}{\large 摘要\\}
+    % \renewcommand{\abstractname}{\zihao{-4}\large 摘要\\}
+    \setlength{\absleftindent}{0pt}
+    \setlength{\absrightindent}{0pt}  %清楚自动缩进
+    
+ %   \newgeometry
+ 
+	\begin{abstract}%摘要
+\par 背景介绍。
+\par 针对问题一，过程+方法+结果
+\par 针对问题二，
+
+\par 针对问题三，
+\par 针对问题四，
+\par 本文是基于
+
+
+
+\textbf{关键词：}成本加成定价\quad 时间序列模型\quad 层次聚类\quad 自动定价\quad 补货决策  
+	\end{abstract}	
+	
+	
+	
+	\newpage  %新开一页
+	
+	
+	{\centering\section{问题的重述}}
+	%\fontsize{12pt}{12pt}\selectfont
+
+	\subsection{问题背景}		
+\par  在生鲜商超中，由于蔬菜类的商品属于时效性强的商品
+
+
+	 \setlength{\tabcolsep}{6pt}
+
+	\subsection{问题的提出}
+\par 自己的话概括题目
+\par \textbf{问题一：}文字文字
+\par \textbf{问题二：}文字文字
+\par \textbf{问题三：}文字文字
+\par \textbf{问题四：}文字文字
+
+
+
+
+
+	{\centering\section{问题分析}}
+	%\fontsize{12pt}{12pt}\selectfont
+\par \textbf{总目标：}这里是加粗的写法 
+\par \textbf{数据预处理：}由于在附件二中的蔬菜类商品的销售流水数据中总数据量共有87万条，
+\par 数据的整合根据蔬菜品类和单品的划分具有两种方式：
+\par $\bullet$
+%(这个是点的写法，注意一定要用美元符号包含起来，美元符号内是公式环境)
+按单品：以天、月份为单位时间长度对数据进行整合，以求和的方式求得每天、每月的单品总销量。
+\par $\bullet$按蔬菜品类:根据附件一，对每个品类下的每个单品的每天、每月的销售量进行求和，得出每个品类的每天、每月的总销售量。
+
+
+	
+	\subsection{问题一的分析}	
+\par 要分析品类及单品销售量的分布规律，
+
+	\subsection{问题二的分析}
+\par 问题二围绕如何得到两个小问。\\ 两条斜扛是换行，但是段首无缩进，par换行加段首有缩进
+\\ $\RHD$（这个是三角形的写法，用这个符号可以丰富论文层次，不用也可以）第一问
+\par 第一问解题思路
+\\ $\RHD$ 第二问
+\par 第二问解题思路
+
+	\subsection{问题三的分析}
+\par 问题三
+
+	
+	\subsection{问题四的分析}
+\par 为了
+    
+    
+    
+	{\centering\section{模型的假设}}
+	%\fontsize{12pt}{12pt}\selectfont
+%	
+%		\begin{spacing}{0.9}
+			% 局部调整行距  这里是0.9倍行距
+\begin{compactitem}
+% compactitem  这个叫做无序列表环境
+\item 假设运损与品质差的蔬菜数量被归为损耗量；
+\item 假设除了运损和品质变差的蔬菜外，
+\item 假设不考虑运输与储存带来的额外成本。
+
+
+
+\end{compactitem}	
+
+
+	{\centering\section{符号说明}}
+
+
+	\begin{table}[H]
+		\centering
+		%以下指令，不是每张表都需要用，如果一张表很大，latex的默认排版不好看，可以用以下参数进行调整
+		%\renewcommand\arraystretch{1.3}   %这个地方调整行高
+		%\caption{Your first table.}  % 这个地方放标题	
+		%\captionsetup[table]{font=small,skip=0pt} %算标题与表格的间隔
+ %%注意：excel表格能够转成latex代码，转换网站在latex说明文档中
+	\begin{tabular}{cc}
+		\hline
+		\toprule[1.5pt]
+		
+		
+		\textbf{\makebox[0.3\textwidth][c]{符号}}	&  \textbf{\makebox[0.4\textwidth][c]{定义}} \\ 
+		\midrule  %不要动
+		
+        $P_{it}$ &   第i个品类第t天的价格 \\ %\hline这是黑线
+        $C_{it}$ &  第i个品类第t天的批发价\\
+		$x_{it}$  &  第i个品类第t天的补货量   \\
+		$K_{i}$ & 第i个品类的不打折时的加成率\\
+		$K_{i}^{'}$ & 第i个品类的打折时的加成率\\
+		$a_{i}$ &  第i个品类的损耗率\\
+		$\hat{x_i}$ & 第i个品类的销售量预测值\\
+
+	\bottomrule[1.5pt]
+	\end{tabular}
+	\end{table}
+
+
+ 
+	{\centering\section{模型的建立与求解}}
+	%\fontsize{12pt}{12pt}\selectfont
+
+%这里主要是有特殊符号的写法以及step的斜体加粗写法
+\subsection{数据预处理}  % 一级标题
+\par （1）整合销售流水数据
+\par 【处理原因+处理步骤】由于附件二中的完整的销售流水数据总有87万条数据，
+\par \textit{\textbf{Step1.}} par为换行且首行缩进两字符
+\par \textit{\textbf{Step2.}} textit为斜体
+\par \textit{\textbf{Step3.}} textbf为加粗
+\par (2)异常值处理
+\par $\bullet $第一个处理办法
+\par $\bullet$  特殊符号都需要在公式环境$编写$
+3$\sigma$原则是用于处理异常值的常用方法，其原理是由于落在±3$\sigma$以外的概率只有0.27\%,因此它在有限次测量中发生的可能性很小，若该事件发生，则可以视作异常事件。
+
+
+\subsection{问题一的求解}
+\subsubsection{初步分析}
+\noindent $\RHD$\textbf{数据描述性统计}
+
+
+\par 普通表格代码网站：https://www.latex-tables.com/   这个网站可以将excel/csv表格转换成latex形式
+\begin{table}[H]
+\centering
+\caption{描述性统计表}
+% 下面代码是缩放表格，如何表格太大 空白太多可以缩放 更改的是scalebox里的数值，0.7是缩放到原来的0.7倍，1就是不缩放
+\scalebox{1}{
+\begin{tabular}{c|cccccc} 
+\toprule[1.5pt]
+\diagbox{项目}{品类} & 花叶类      & 花菜类      & 水生根茎类    & 茄类      & 辣椒类      & 食用菌      \\ 
+\midrule
+平均值              & 1985.21  & 8353.29  & 790.11   & 2243.18 & 2035.30  & 1056.76  \\
+标准差              & 3582.28  & 10136.65 & 1449.231 & 3948.30 & 4735.36  & 2408.92  \\
+中间值              & 141.75   & 5821.57  & 126.422  & 672.42  & 283      & 138.5    \\
+最大值              & 19187.22 & 27537.23 & 6052     & 13602   & 28164.33 & 15596    \\
+最小值              & 0        & 0.62     & 10       & 4.98    & 0        & 0        \\
+\toprule[1.5pt]
+\end{tabular}}
+\end{table}
+
+
+\par  子图即多个图片模板代码，[]里面填论文里的图片名字，{}里面填图片文件名字，注意图片需要和该texfile格式文件在同一个文件夹下
+
+ \par 这个是单张图片写法，如果报错了这里，那就把图片文件名改成英文
+ \begin{figure}[h]
+ \centering
+ \includegraphics[width=0.7\linewidth]{聚类1}
+ \caption{}
+ \label{fig:1}
+ \end{figure}
+ 
+ 
+ \par 这个是多张图片的写法，第一个方框写图名 第二个方框写图片文件名，如果报错了这里，那就把图片文件名改成英文
+   \begin{figure}[H]
+    	\centering
+    	\subfloat[花叶类销售量]{\includegraphics[width=.3\linewidth]{花叶类销售量}}\hspace{5pt}
+    	\subfloat[花菜类销售量]{\includegraphics[width=.3\linewidth]{花菜类销售量}}\
+    	\subfloat[茄类销售量]{\includegraphics[width=.3\linewidth]{茄类销售量}}\hspace{5pt}
+ 		\subfloat[辣椒类销售量]{\includegraphics[width=.3\linewidth]{辣椒类销售量}}\
+ 		\subfloat[水生根茎类销售量]{\includegraphics[width=.3\linewidth]{水生根茎类销售量}}\hspace{5pt}
+ 		\subfloat[食用菌销售量]{\includegraphics[width=.3\linewidth]{食用菌销售量}}\
+       \caption{销售量分析}
+    \end{figure}
+
+
+
+\iffalse  %
+这里是多行注释代码  从iffalse开始道fi结束
+% 【三角形符号代码 \RHD ,需要在无编号公式环境$...$下】
+$\RHD$\textbf{剔除无效数据}
+\par 为了提高数据质量和确保我们的分析能够聚焦在关键信息上，我们进行了数据预处理的步骤。其中，我们通过EXCEL的排序并剔除了销售量低于100的数据记录。这一决策是为了聚焦分析的关键信息，以及避免低销售量数据可能引入的噪声。
+
+\fi 
+
+
+\subsubsection{分析不同品类商品销售量的分布规律}
+% noident为不空格，因为标题下第一行默认空格
+\noindent $\RHD$\textbf{总体观察6个品类的总体分布规律}
+\par 文字
+
+\par  下面是单个图片写法
+ \begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{时间-花叶}
+\caption{这里写图片名字，在figure环境下，会对图片自动编号}
+\end{figure}
+
+\par 行内公式写法：$y = \beta_0+\beta_{1}x+\beta^{0}_{2}x_2 $,以及上下标写法，公式会基本写法就可以，一般公式可以通过网站进行图片转latex代码，网址：$https://www.simpletex.cn/ai/latex_ocr$
+
+\par 无编号  行间公式写法,用两个美元符号包括起来就可以了
+$$y_t = y_{t-1}+\sum_{i =1}^{4}\alpha_{i}\cdot y_{t-i}-\sum_{i =1}^{4}\alpha_{i}\cdot y_{t-i}\cdot y_{t-1}-\sum_{i=1}^{7}\beta_{i} $$
+
+
+\noindent$\RHD$\textbf{品类间的相关性分析}
+   \par 文字叙述
+   \par 【以下是有编号的行间公式编写，在equation环境中，会对环境中的内容进行编号】放自己的公式，只需要放到equation环境中就可以 。
+   \begin{equation}
+   r=\frac{\sum_{i=1}^n(X_i-\overline{X})(Y_i-\overline{Y})}{\sqrt{\sum_{i=1}^n(X_i-\overline{X})^2}\sqrt{\sum_{i=1}^n(Y_i-\overline{Y})^2}}
+   \end{equation}
+   
+   
+   
+\par 多个公式组合写法，修改只需要修改arry环境内的内容
+
+   		\begin{equation}  %公式转代码的
+       		%\label{eq6}
+       		\left\{
+       		\begin{array}{l}
+       			|r| > 0.95$；显著性相关$\\   
+       			|r| \geq 0.8$；高度相关$\\
+       			0.8 >|r| \geq0.5$；中度相关$\\
+       			0.5 >|r| \geq0.3$；低度相关$\\
+       			0.3 \geq|r| $；弱度相关$
+       		\end{array}
+       		\right.
+       	\end{equation} 
+\par 其中，r为相关系数，取值范围为0-1，表示的相关程度如公式(1)所示。X，Y分别表示两个变化的观测值。
+
+\subsection{问题二模型的建立与求解}
+问题二的总体叙述
+\subsubsection{标题最多到三级标题！}
+问题二的具体内容
+\subsubsection{问题二的细节}
+问题二的具体内容文字文字文字
+\subsubsection{问题二的求解}
+问题二的具体内容文字文字文字
+
+\subsection{问题三模型的建立与求解}
+
+%该续表代码容易报错，查bug也比较难，如果时间紧张，请勿使用。
+\par 续表写法如下：
+\begin{longtable}[htbp!]{cccc}
+            		\caption{33个单品的利润} 
+       
+        		 \\
+            		\toprule[1.5pt]
+
+            	品类   & 单品名称       & 利润          & 日补货量             \\ \hline
+            		\endfirsthead
+            	\multicolumn{4}{c}{{\tablename\ \thetable{} -- 接续上一页}} \\
+            		\toprule[1.5pt]
+            		
+            		品类   & 单品名称       & 利润          & 销量   \\ \hline
+            		\endhead
+            		\hline
+            		\multicolumn{4}{r}{{续下一页}} \\
+            		\endfoot
+            		\toprule[1.5pt]
+            		\endlastfoot
+            		
+            		%直接替换这下面的内容以下  列名在上面修改
+           辣椒   & 小皱皮(份)     & 165.3438188 & 12.55745004  \\
+           花叶   & 云南生菜(份)    & 125.5840035 & 35.71429515  \\
+           花菜   & 西兰花        & 98.13023225 & 14.8125779   \\
+           食用菌  & 西峡花菇(1)    & 93.42888722 & 7.82356      \\
+           辣椒   & 螺丝椒        & 77.09302413 & 7.860117056  \\
+           水生根茎 & 洪湖藕带       & 71.89368856 & 4.627964164  \\
+           水生根茎 & 净藕(1)      & 70.50791573 & 6.51         \\
+           花叶   & 云南油麦菜(份)   & 65.41889908 & 22.86220306  \\
+           花叶   & 菠菜(份)      & 64.84627215 & 15.81334668  \\
+           辣椒   & 芜湖青椒(1)    & 63.43968915 & 15.43611652  \\
+           辣椒   & 螺丝椒(份)     & 61.72309297 & 11.77837569  \\
+           花叶   & 菠菜         & 56.67974785 & 6.228308439  \\
+           茄类   & 紫茄子(2)     & 54.32892799 & 12.41568935  \\
+           茄类   & 圆茄子(2)     & 52.85962422 & 13.51367517  \\
+           茄类   & 长线茄        & 52.45653226 & 5.772123004  \\
+           花菜   & 枝江青梗散花     & 51.53726016 & 7.282979965  \\
+           辣椒   & 小米椒(份)     & 51.37211579 & 22.01082225  \\
+           花叶   & 娃娃菜        & 47.85572823 & 10.33017653  \\
+           水生根茎 & 高瓜(2)      & 42.43254976 & 3.086869328  \\
+           食用菌  & 双孢菇(盒)     & 31.2824818  & 10.89902     \\
+           花叶   & 竹叶菜        & 28.9523772  & 13.65156627  \\
+           水生根茎 & 高瓜(1)      & 26.92266268 & 2.843299549  \\
+           辣椒   & 红椒(2)      & 26.78860853 & 1.917490445  \\
+           花叶   & 奶白菜        & 24.67300033 & 10.01365489  \\
+           花叶   & 云南生菜       & 21.76923229 & 3.976249047  \\
+           花叶   & 上海青        & 20.19599832 & 5.070410881  \\
+           花叶   & 外地茼蒿       & 17.7665789  & 2.194129752  \\
+           花叶   & 苋菜         & 15.60871037 & 7.531767738  \\
+           水生根茎 & 菱角         & 15.47998586 & 1.682313154  \\
+           食用菌  & 金针菇(盒)     & 15.45170661 & 12.76034     \\
+           花叶   & 小青菜(1)     & 15.32227684 & 5.647992169  \\
+           花叶   & 红薯尖        & 14.40663475 & 5.35699649   \\
+           辣椒   & 青红杭椒组合装(份) & 12.79533492 & 3.511303256 
+                	\end{longtable}
+
+
+\subsection{问题四的求解}
+\par 文字
+\par 文字
+
+
+
+{\centering\section{模型的评价}}
+\subsection{优点}
+\begin{compactitem}
+\item 第一个优点
+\item 第二个优点
+\end{compactitem}	
+
+\subsection{缺点}
+\begin{compactitem}
+\item 第一个缺点
+\item 第二个缺点
+\end{compactitem}
+
+\newpage  %展开新一页
+
+	
+\begin{thebibliography}{100}%此处数字为最多可添加的参考文献数量
+	
+	\bibitem{article1}王艳.中小型连锁超市定价的影响因素及其定价策略探析[J].兰州工业学院学报,2014,21(03):99-102.
+	\bibitem{article2}孙华林.连锁超市生鲜农产品补货调货策略研究[J].物流工程与管理,2017,39(01):100-101.
+    \bibitem{article3}汪晓彤. 基于DIT的连锁超市生鲜果蔬产品库存控制策略研究[D].东南大学,2020.
+	
+	\bibitem{article8}司守奎. 数学建模算法与程序 [M]. 海军航空工程学院，2007.
+
+
+\end{thebibliography}  
+	
+	\newpage
+	{\centering\section*{附录}}
+
+% 第一个附录 appendices是附录环境
+\begin{appendices}
+\section{6个品类的聚类情况}  % 附录A的标题
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{聚类1}
+\caption{}
+\label{fig:1}
+\end{figure}
+
+
+
+\end{appendices}	
+	
+    
+
+\begin{appendices}
+\section{问题三整合所需单品的销量与批发价}  % 第二个附录的标题
+% 以下是代码环境，python的写法
+\begin{lstlisting}[language=python]  
+ import pandas as pd
+ 
+ 
+ class Deal_with_static:
+     def __init__(self, aim_commodity_sell, original_commodity_sell, cost):
+         self.aim_commodity_sell = aim_commodity_sell
+         self.original_commodity_sell = original_commodity_sell
+         self.new_commodity_sell = [[] for _ in range(self.aim_commodity_sell.shape[0])]
+         self.new_commodity_types = self.aim_commodity_sell[:, 0]
+         self.cost = cost
+\end{lstlisting}
+
+%以下tcolorbox环境内可以给代码加方框，有更改颜色的需求可以网上查
+%并且下面的\begin{lstlisting}[style=matlab,caption={}] 意思是可以放matlab代码
+
+\begin{tcolorbox}[title=另一种代码写法]
+\begin{lstlisting}[style=matlab,caption={}]
+% MATLAB code to plot a sine function
+
+% Define the range of x values
+x = linspace(0, 2*pi, 100);  % 100 points from 0 to 2*pi
+
+% Compute the sine of each x value
+y = sin(x);
+
+% Plot the sine function
+figure;  % Create a new figure window
+plot(x, y, 'b-', 'LineWidth', 2);  % Plot sin(x) in blue with a line width of 2
+title('Plot of sin(x)');  % Add a title to the plot
+xlabel('x');  % Label x-axis
+ylabel('sin(x)');  % Label y-axis
+grid on;  % Turn on the grid
+\end{lstlisting}
+\end{tcolorbox}
+
+
+
+\end{appendices}
+    
+
+       
+\end{document}
