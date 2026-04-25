@@ -1,0 +1,739 @@
+\documentclass[a4paper,12pt]{ctexart}
+
+\newcommand{\mytitle}[1]{{\large\bfseries\fontsize{16}{16}\selectfont #1}}
+\title{\mytitle{\heiti \zihao{3} \vspace{-1.5cm}基于圆柱镜面反射的变形艺术模型研究}}
+\author{}
+\date{}
+
+\pagestyle{plain}
+
+\usepackage{indentfirst}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{abstract}
+\usepackage{appendix}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{paralist}
+
+\hypersetup{hidelinks}
+\allowdisplaybreaks
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+\ctexset{
+    section={
+        name={,、},
+        number={\chinese{section}},
+        format=\centering\heiti\zihao{-3},
+        beforeskip=1ex,
+        afterskip=1ex
+    },
+    subsection={
+        format=\heiti\zihao{-4},
+        beforeskip=1ex,
+        afterskip=1ex
+    },
+    subsubsection={
+        format=\heiti\zihao{-4},
+        beforeskip=1ex,
+        afterskip=1ex
+    }
+}
+
+\captionsetup[table]{labelsep=space}
+\captionsetup[figure]{labelsep=space}
+\captionsetup{font={small}}
+\renewcommand{\abstractname}{\fontsize{15pt}{22pt}\heiti 摘要\\}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\refname}{参考文献}
+\renewcommand{\appendixname}{附录}
+\renewcommand{\lstlistingname}{代码}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{RGB}{245,245,245}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=4pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+\newtheorem{theorem}{定理}[section]
+
+\begin{document}
+
+\maketitle
+\vspace{-1.0cm}
+\setlength{\absleftindent}{0pt}
+\setlength{\absrightindent}{0pt}
+
+\begin{abstract}
+\par 圆柱镜面反射变形艺术通过在平面纸张上绘制畸变图案，并借助圆柱镜面的反射呈现出正常可辨的图像。针对赛题中的纸面设计、双有意义图案可行性以及双指定图案兼容性三个递进问题，本文建立了基于几何光学与逆向光线追踪的圆柱镜面反射模型，并给出可直接落地到 A4 纸面的图案生成流程。
+
+\par 针对问题一，本文以虚拟像平面为目标图像载体，构建“虚拟像点-视线-圆柱反射点-纸面交点”的逆反射链，得到从镜面目标图像到纸面变形图案的解析映射。进一步在 A4 纸张边界、圆柱安全间隙和有效反射区域约束下建立几何参数优化模型，确定圆柱中心为 $(0,40)$ mm、半径 $R=22$ mm、观察点为 $(0,-200,140)$ mm、虚拟像平面为 $y=75$ mm 的推荐配置。数值结果表明：图3 方案的 A4 有效率为 99.9\%，Jacobian 条件数为 3.08；图4 方案的 A4 有效率为 89.3\%，条件数为 3.31，均满足制作要求。
+
+\par 针对问题二，本文将纸面图案与镜面图像的“双有意义”设计解释为同一反射映射下的双向可辨识问题。对于镜面图像未指定的情形，证明可通过调节虚拟像平面位置和观察几何，使纸面图案对应的镜面结果保持可辨识；对于镜面图像已指定的情形，则给出双图像相容的映射条件，并指出其可行性受反射映射的单射性、畸变水平和有效反射区域共同制约。
+
+\par 针对问题三，本文从参数维数与图像自由度不匹配的角度说明：当纸面图案与镜面图像均被完全独立指定时，精确解通常不存在。为此，进一步从拓扑结构、频率范围和几何尺度三个方面建立近似可行的必要条件，并构造容忍畸变下的兼容性指标，为双指定图案设计提供定量判据。
+
+\par 最后，本文利用回采重建、候选配置权衡分析和单参数灵敏度分析对模型进行检验。结果显示，图3 和图4 的回采重建指标分别达到 PSNR 47.75 dB、SSIM 0.99974 以及 PSNR 44.87 dB、SSIM 0.99899；模型对虚拟像平面位置和中心高度较敏感，对观察高度和观察距离具有一定容错性。该模型可推广至圆锥镜、球面镜等更一般的反射变形装置设计。
+
+\par \textbf{关键词：}圆柱镜面反射\quad 逆向光线追踪\quad 变形图案设计\quad 双图像兼容性\quad 畸变控制
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{问题重述}
+
+\subsection{问题背景}
+\par 变形艺术（Anamorphosis）是一类依赖特定投影关系或反射关系的视觉艺术形式。图像在普通观察条件下呈现出明显扭曲，而在给定视点和给定反射装置下又能恢复为清晰可辨的正常图像。圆柱镜面反射变形是其中最具代表性的形式之一：当纸面上的图案围绕圆柱镜布置时，观察者能够在镜面中看到被“还原”的目标图像。
+
+\par 该过程本质上由观察者、圆柱镜面和纸面图案之间的空间几何关系决定。若要获得可制作、可观察、可验证的纸面图案，必须建立精确的反射映射模型，并同时兼顾纸张边界、镜柱尺寸、观察位置以及局部畸变等实际约束。
+
+\subsection{问题的提出}
+\par 根据题意，本文围绕以下三个问题展开研究。
+
+\par \textbf{问题一：}建立圆柱镜面反射变形的数学模型。给定圆柱的位置、尺寸、观察点位置以及期望在镜面上呈现的虚拟图像，计算需要绘制在纸面上的变形图案，并在 A4 纸张约束下完成图3 和图4 的设计。
+
+\par \textbf{问题二：}分析纸张图案与镜面反射图像能否同时具有可辨识意义。讨论两种情形：其一，镜面图像未指定时，如何通过几何配置使镜面结果仍具有清晰含义；其二，镜面图像已指定时，纸面图案与镜面图像同时有意义所需满足的相容条件。
+
+\par \textbf{问题三：}研究纸张图案与镜面图像均被完全指定时的可行性问题。判断任意给定的双图像对能否借助圆柱镜面实现同步显示，并给出精确可行、近似可行及不可行的判定依据。
+
+\section{问题分析}
+
+\subsection{问题一的分析}
+\par 问题一的核心是建立从目标镜面图像到纸面图案的逆向映射。由于镜面反射满足入射角等于反射角，因此可从目标虚拟像点反推纸面上的发光点位置。具体步骤为：先由观察点与虚拟像点的连线求得圆柱面反射点，再由圆柱法向量与反射定律确定入射方向，最终求出入射光线与纸面平面的交点。
+
+\par 赛题要求最终图案可落在 A4 纸内并留出圆柱放置区域，因此不能只关注理论可逆性，还需把纸张边界、圆柱间隙和局部畸变水平同时纳入参数优化过程。
+
+\subsection{问题二的分析}
+\par 问题二可以理解为“编码图像”和“解码图像”是否能同时承载视觉信息。若镜面图像未指定，则问题等价于：给定纸面图案后，能否通过调整几何配置让镜面自然生成可辨识图像；若镜面图像已指定，则需要判断纸面图案和镜面图像能否作为同一反射映射的一对原像与像。
+
+\par 因此，问题二的关键不在于再造一个新的映射，而在于研究同一映射下的可辨识性、单射性和畸变分布，并判断何时“双有意义”是几何上可持续的。
+
+\subsection{问题三的分析}
+\par 问题三是在问题二基础上的进一步收紧。此时纸面图案和镜面图像均被完全规定，几何参数只有有限自由度，而图像本身包含大量像素自由度，二者之间存在明显的维度不匹配。由此可以预期，独立指定的双图像对通常难以满足完全一致的反射映射关系。
+
+\par 因而本题需要先回答“精确解通常为何不存在”，再进一步讨论“在容忍一定畸变时，哪些双图像对仍可能近似兼容”，并给出实用的设计判据。
+
+\section{模型假设}
+
+\begin{compactitem}
+\item 圆柱镜面视为理想镜面，反射过程满足几何光学定律，不考虑漫反射、吸收和表面粗糙误差。
+\item 圆柱为直立放置的直圆柱，其轴线平行于 $z$ 轴，底面与纸面平行。
+\item 观察者简化为单一视点，不考虑瞳孔尺寸、景深和头部晃动带来的视角变化。
+\item 纸张视为理想平面，厚度忽略不计，纸面所在平面取为 $z=0$。
+\item 虚拟像平面为与圆柱轴线平行的平面，用于承载期望的镜面图像。
+\item 不考虑衍射、干涉等波动光学效应，图像质量主要由几何映射与数值采样决定。
+\end{compactitem}
+
+\section{符号说明}
+
+\begin{table}[H]
+\centering
+\caption{主要符号说明}
+\begin{tabular}{cl}
+\toprule[1.5pt]
+\textbf{符号} & \textbf{含义} \\
+\midrule[1pt]
+$O=(x_0,y_0)$ & 圆柱中心在纸面上的投影坐标（mm） \\
+$R,H$ & 圆柱半径与高度（mm） \\
+$V=(x_v,y_v,z_v)$ & 观察点坐标（mm） \\
+$P_{img}=(x_i,y_{img},z_i)$ & 虚拟像平面上的目标点 \\
+$P_{cyl}=(x_c,y_c,z_c)$ & 圆柱面上的反射点 \\
+$P_{paper}=(x_p,y_p,0)$ & 纸面图案点 \\
+$\mathbf{n}$ & 圆柱面在反射点处的单位法向量 \\
+$\mathbf{d}_{out}$ & 反射光线方向 \\
+$\mathbf{d}_{in}$ & 入射光线方向 \\
+$\Pi_v:y=y_{img}$ & 虚拟像平面 \\
+$J$ & 从虚拟像到纸面的 Jacobian 矩阵 \\
+$\sigma_1,\sigma_2$ & $J$ 的奇异值 \\
+$\kappa(J)$ & Jacobian 条件数，用于刻画局部形状畸变 \\
+$\mathcal{M}$ & 从镜面目标图像到纸面图案的逆反射映射 \\
+$\mathcal{F}$ & 从纸面图案到镜面图像的正向反射映射 \\
+$I_{paper},I_{mirror}$ & 纸面图案与镜面图像 \\
+$C$ & 双图像兼容性指标 \\
+\bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+\section{问题一的建模与求解}
+
+\subsection{模型选择与建模思路}
+\par 结合赛题要求，本文采用“虚拟像平面 + 逆向光线追踪”的建模策略。其基本思想是：先在虚拟像平面上放置期望的镜面目标图像，再从该平面上的像素点出发，按几何光学规律反推它在纸面上的来源位置。这样得到的纸面图案在选定观察点与圆柱参数下，能够经镜面反射恢复为目标图像。
+
+\par 与直接做经验性图像扭曲相比，该思路有三个优点：一是每一步都对应明确的物理量和几何关系；二是便于引入纸面边界、圆柱尺寸等制作约束；三是可以自然地用 Jacobian 对局部拉伸和压缩进行量化评价。
+
+\subsection{坐标系建立与圆柱面参数化}
+\par 建立三维直角坐标系：以纸面为 $xy$ 平面，$z$ 轴垂直向上。圆柱轴线平行于 $z$ 轴，圆柱底面圆心投影为 $(x_0,y_0,0)$，半径为 $R$，高度范围为 $z\in[0,H]$。观察点为 $V=(x_v,y_v,z_v)$，虚拟像平面取为 $\Pi_v:y=y_{img}$。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{../outputs/cylindrical_anamorphosis/geometry_schematic.png}
+\caption{圆柱镜面反射几何示意图}
+\label{fig:geometry}
+\end{figure}
+
+\par 如图 \ref{fig:geometry} 所示，目标图像上的像点 $P_{img}$ 与观察点 $V$ 确定一条视线，该视线与圆柱面相交于反射点 $P_{cyl}$。反射点的法向量决定了入射光线的反推方向，从而进一步定位到纸面交点 $P_{paper}$。整条链路构成纸面图案生成的几何骨架。
+
+\subsection{反射映射的解析推导}
+\par 设虚拟像点为 $P_{img}=(x_i,y_{img},z_i)$，观察点为 $V=(x_v,y_v,z_v)$，则视线方向向量为
+\begin{equation}
+\mathbf{d}_{view}=P_{img}-V=(x_i-x_v,\ y_{img}-y_v,\ z_i-z_v).
+\end{equation}
+
+\par 视线参数方程为
+\begin{equation}
+L(t)=V+t\mathbf{d}_{view}, \qquad t\in[0,1].
+\end{equation}
+
+\par 圆柱面方程为
+\begin{equation}
+(x-x_0)^2+(y-y_0)^2=R^2,\qquad z\in[0,H].
+\end{equation}
+
+\par 将视线方程代入圆柱面方程，可得关于 $t$ 的二次方程。取位于观察点与虚拟像点之间且满足高度范围约束的实根，即得到反射点 $P_{cyl}=(x_c,y_c,z_c)$。
+
+\par 圆柱面在该点处的单位法向量为
+\begin{equation}
+\mathbf{n}=\left(\frac{x_c-x_0}{R},\ \frac{y_c-y_0}{R},\ 0\right).
+\end{equation}
+
+\par 记从反射点指向虚拟像点的单位方向为
+\begin{equation}
+\mathbf{d}_{out}=\frac{P_{img}-P_{cyl}}{\|P_{img}-P_{cyl}\|},
+\end{equation}
+则根据反射定律，入射光线方向为
+\begin{equation}
+\mathbf{d}_{in}=\mathbf{d}_{out}-2(\mathbf{d}_{out}\cdot\mathbf{n})\mathbf{n}.
+\end{equation}
+
+\par 入射光线与纸面 $z=0$ 的交点即为纸面图案点。若入射光线参数方程写为
+\begin{equation}
+L_{in}(s)=P_{cyl}+s\mathbf{d}_{in},
+\end{equation}
+则令其 $z$ 分量为 $0$ 可得
+\begin{equation}
+s=-\frac{z_c}{d_{in,z}},
+\end{equation}
+进而得到
+\begin{equation}
+P_{paper}=P_{cyl}-\frac{z_c}{d_{in,z}}\mathbf{d}_{in}.
+\end{equation}
+
+\par 因而从虚拟像点到纸面点的映射可记为
+\begin{equation}
+P_{paper}=\mathcal{M}(P_{img};\theta),
+\end{equation}
+其中 $\theta=(x_0,y_0,R,H,x_v,y_v,z_v,y_{img},z_{center})$ 为几何配置参数。
+
+\subsection{镜面可视区域的确定}
+\par 上述映射只有在满足有效反射路径时才有意义。具体而言，需要同时满足：
+\begin{compactitem}
+\item 视线与圆柱面存在有效交点，且反射点落在圆柱高度范围内；
+\item 反推得到的入射方向能够与纸面相交；
+\item 纸面交点位于 A4 纸张边界内，且与圆柱底座保持安全间隙。
+\end{compactitem}
+
+\par 因此，赛题中的“可制作”区域并不是整个 A4 平面，而是由反射可达性、纸张边界和圆柱占位共同决定的有效纸面区域。只有落在该区域内的像素，才能参与后续图案渲染。
+
+\subsection{镜面图案到纸面图案的变换算法}
+\par 由解析推导可知，本文采用逐像素逆映射方式生成纸面图案：先在虚拟像平面上均匀采样像素网格，再通过逆反射链把每个像素送到纸面坐标，最后根据采样位置完成颜色写入。该过程的整体流程如图 \ref{fig:workflow} 所示。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{../outputs/cylindrical_anamorphosis/algorithm_workflow_flowchart.png}
+\caption{逆反射链算法流程图}
+\label{fig:workflow}
+\end{figure}
+
+\par 与正向投影相比，逆映射更适合本题，因为目标图像是已知的，而纸面图案是待求的。通过统一的逆映射流程，可以在同一框架下同时处理不同宽高比、不同内容复杂度的目标图像，并保证几何解释的一致性。
+
+\subsection{圆柱参数优化模型}
+\par 为使最终纸面图案完整落在 A4 纸张上，且避免与圆柱底座重叠，本文建立如下约束优化模型。设计变量取为
+\begin{equation}
+\theta=(x_0,y_0,R,H,x_v,y_v,z_v,y_{img},z_{center}).
+\end{equation}
+
+\par 对于任意纸面点 $P_{paper}=(x_p,y_p,0)$，要求满足
+\begin{equation}
+-105 \le x_p \le 105,\qquad -148.5 \le y_p \le 148.5,
+\end{equation}
+以及圆柱安全间隙约束
+\begin{equation}
+(x_p-x_0)^2+(y_p-y_0)^2 \ge (R+\delta)^2,\qquad \delta=3\text{ mm}.
+\end{equation}
+
+\par 为量化局部畸变，记映射 $\mathcal{M}$ 的 Jacobian 为
+\begin{equation}
+J=
+\begin{pmatrix}
+\dfrac{\partial x_p}{\partial x_i} & \dfrac{\partial x_p}{\partial z_i}\\[6pt]
+\dfrac{\partial y_p}{\partial x_i} & \dfrac{\partial y_p}{\partial z_i}
+\end{pmatrix}.
+\end{equation}
+
+\par 对 $J$ 做奇异值分解，设奇异值为 $\sigma_1\ge \sigma_2>0$，则面积缩放由 $\det(J)=\sigma_1\sigma_2$ 描述，形状畸变由条件数
+\begin{equation}
+\kappa(J)=\frac{\sigma_1}{\sigma_2}
+\end{equation}
+刻画。本文以平均条件数和有效覆盖率为核心指标，在候选参数空间内做网格搜索与筛选，优先选择同时兼顾低畸变和高覆盖率的公共几何配置。
+
+\subsection{图3设计方案}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../outputs/cylindrical_anamorphosis/target_image_gallery.png}
+\caption{目标图像与虚拟像平面配置}
+\label{fig:target_gallery}
+\end{figure}
+
+\par 图 \ref{fig:target_gallery} 展示了两幅目标图像在虚拟像平面上的布局。图3 为纵向构图，虚拟尺寸约为 $22.82\times34.00$ mm，更容易在 A4 纸面上获得较高覆盖率。经过参数搜索后，图3 在推荐公共几何配置下获得 99.9\% 的 A4 有效率，纸面尺寸约为 $210.0\times102.2$ mm，Jacobian 条件数为 3.08，表明局部畸变较为均匀。
+
+\par 从图像实现角度看，问题一不能只停留在镜面点到纸面点的几何推导，还需要把目标图像预处理纳入整体流程。对于图3 这类灰度层次较丰富、边缘过渡较细腻的图像，本文更强调灰度保留、平滑去噪与边缘稳定，以避免高频噪声在反射后被局部拉伸放大；对于图4 这类轮廓清晰、色块边界明确的图像，则更适合采用区域聚类和轮廓保持策略，使纸面图案在打印后仍具有足够清晰的块面结构。由此，问题一不再只是“反射公式推导”，而是被提升为“几何一图像一优化一实现”的一体化设计问题。
+
+\subsection{图4设计方案}
+\par 图4 为横向构图，虚拟尺寸约为 $51.32\times28.00$ mm，宽度明显大于高度，因此在纸面映射时会产生更强的横向拉伸。最终得到的纸面尺寸约为 $210.0\times238.1$ mm，A4 有效率为 89.3\%，Jacobian 条件数为 3.31。虽然覆盖率略低于图3，但仍处于可制作范围内。
+
+\begin{table}[H]
+\centering
+\caption{推荐几何配置参数}
+\label{tab:geometry}
+\begin{tabular}{cc}
+\toprule[1.5pt]
+\textbf{参数} & \textbf{数值} \\
+\midrule[1pt]
+圆柱中心 $(x_0,y_0)$ & $(0,40)$ mm \\
+圆柱半径 $R$ & $22$ mm \\
+圆柱高度 $H$ & $180$ mm \\
+观察点 $V$ & $(0,-200,140)$ mm \\
+虚拟像平面 $y_{img}$ & $75$ mm \\
+虚拟像中心高度 $z_{center}$ & $12$ mm \\
+\bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{图3 与图4 的生成结果}
+\label{tab:results}
+\begin{tabular}{ccccc}
+\toprule[1.5pt]
+\textbf{图像} & \textbf{虚拟尺寸(mm)} & \textbf{A4 有效率} & \textbf{纸面尺寸(mm)} & \textbf{条件数} \\
+\midrule[1pt]
+图3 & $22.82\times34.00$ & 99.9\% & $210.0\times102.2$ & 3.08 \\
+图4 & $51.32\times28.00$ & 89.3\% & $210.0\times238.1$ & 3.31 \\
+\bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+\par 表 \ref{tab:geometry} 与表 \ref{tab:results} 表明，同一组公共几何参数能够同时服务于图3 和图4 两幅图像。对参赛作品而言，这意味着设计方案不仅有理论可行性，而且在实际制作时具有统一、简洁、易操作的优势。
+
+\subsection{问题一结论}
+\par 问题一中建立的逆反射链模型能够把目标镜面图像稳定映射为纸面变形图案。推荐参数在图3 上获得 99.9\% 的 A4 有效率和 3.08 的条件数，在图4 上获得 89.3\% 的 A4 有效率和 3.31 的条件数，说明该模型既能满足制作约束，也能控制局部畸变。
+
+\section{问题二的建模与求解}
+
+\subsection{变形场的数学刻画}
+\par 问题二研究的是“纸面图案有意义”与“镜面图像有意义”能否同时成立。设纸面图案为 $I_{paper}$，镜面图像为 $I_{mirror}$，二者通过同一几何配置 $\theta$ 下的正向反射映射 $\mathcal{F}$ 和逆反射映射 $\mathcal{M}$ 联系：
+\begin{equation}
+I_{mirror}=\mathcal{F}(I_{paper};\theta),\qquad I_{paper}=\mathcal{M}(I_{mirror};\theta).
+\end{equation}
+
+\par 这一关系说明，纸面和镜面并不是两个独立设计对象，而是同一变形场下的一对像与原像。判断二者能否同时“有意义”，本质上是在判断该变形场是否在关键区域内保持足够的单射性、连贯性与视觉容错空间。
+
+\subsection{变形场的定量分析}
+\par 本文用 Jacobian 条件数 $\kappa(J)$ 量化局部形状畸变，用有效覆盖率量化纸面资源利用程度。若某一区域 $\kappa(J)$ 过大，则意味着该区域发生强烈拉伸或压缩，图像细节容易在纸面或镜面中丢失；若有效覆盖率过低，则纸面图案中大量区域无法参与稳定成像，也会削弱“双有意义”的可能性。
+
+\par 进一步地，问题二并不只是一个公式推导题，而是一个“自由度是否足够”的设计问题。若镜面图像尚未指定，则设计者只需先给出一个有意义的纸面图案，再在所有可能的镜面结果中寻找视觉上可解释的那一个；若镜面图像已经被固定，则纸面图案便不再自由，而是被限制在某个逆像集合之中。此时，是否还能同时保持纸面语义，将主要取决于图像类别是否与圆柱镜固有的环向拉伸和径向压缩畸变相兼容。
+
+\subsection{问题 2(a)：镜面图像未指定时的双有意义设计}
+\par 当仅给定纸面图案而未指定镜面图像时，镜面结果由 $\mathcal{F}(I_{paper};\theta)$ 自动决定。此时的设计自由度主要体现在几何配置上，只要配置选取得当，镜面图像仍可能具有清晰视觉含义。
+
+\begin{theorem}[镜面图像可辨识条件]
+给定纸面图案 $I_{paper}$，若存在几何配置 $\theta$ 使得：\textup{(1)} 反射映射在图案支撑集上近似单射；\textup{(2)} 关键区域内 Jacobian 条件数满足 $\kappa(J)<5$；\textup{(3)} 镜面图像落在连续有效反射区域内，则镜面结果具有可辨识性。
+\end{theorem}
+
+\par 该结论说明，当镜面图像未被预先指定时，问题本质上是“让反射结果保持清晰”，而不是“让反射结果匹配某个固定图案”。在本文考察的参数范围内，通过调节虚拟像平面位置 $y_{img}$ 和观察点坐标，可以较稳定地获得具有明确轮廓和结构的镜面图像。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png}
+\caption{镜面图像未指定时的双有意义设计案例}
+\label{fig:q2free}
+\end{figure}
+
+\par 图 \ref{fig:q2free} 给出了三组“纸面先给定、镜面后形成”的案例。上排为纸面上的装饰花纹、罗盘纹样和箭头标识，它们本身都具有明确语义；下排为采用同一正向反射模型得到的镜面结果。可以看到，镜面结果虽然发生了压缩和弯曲，但仍保留了中心轮廓、主方向和低频结构，因此依然可以被解释为完整的视觉对象。这说明当镜面图像未指定时，双有意义设计总体上是可行的，因为设计者实际上是在较大的语义图像集合中寻找一个“足够像”的镜面结果，而不是逼迫它严格匹配某个唯一目标。
+
+\par 这类自由设计情形还揭示出一个重要规律：低频轮廓、中心对称结构和装饰纹样比复杂写实图更容易实现双有意义。原因在于，圆柱镜反射对这类图案的主要影响是尺度变化和局部弯折，而不会彻底破坏其整体认知结构。相反，若纸面图案高度依赖局部比例、细小纹理或严格方向一致性，则镜面端虽然也能形成图像，但更难被直接解释为另一幅“有意义”的作品。
+
+\subsection{问题 2(b)：镜面图像指定时的纸面有意义设计}
+\par 当镜面图像也被指定时，纸面图案与镜面图像必须满足同一反射映射关系。此时，不仅镜面图像要正确，纸面图案本身还要保留足够的视觉结构，因此约束明显收紧。
+
+\begin{theorem}[双图像相容性条件]
+纸面图案 $I_{paper}$ 与镜面图像 $I_{mirror}$ 同时可辨识的必要条件是存在几何配置 $\theta$ 使得
+\begin{equation}
+I_{mirror}=\mathcal{F}(I_{paper};\theta),\qquad
+I_{paper}=\mathcal{M}(I_{mirror};\theta).
+\end{equation}
+\end{theorem}
+
+\par 这一定理指出，两幅图像不能彼此独立设计。若二者并非来自同一反射映射，那么即使分别看起来都“合理”，放入圆柱镜系统后也无法同时保持含义。换言之，双有意义设计必须在方案初期就把纸面视觉与镜面视觉放在同一几何框架下联合考虑。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/q2_specified_mirror_gallery.png}
+\caption{镜面图像被指定时的纸面语义保持情况}
+\label{fig:q2specified}
+\end{figure}
+
+\par 图 \ref{fig:q2specified} 展示了镜面目标被指定后，不同图像类别对应的逆设计结果。第一列的罗盘徽记具有明显的放射状结构，逆设计得到的纸面图案虽然发生弯曲，但仍保持装饰图案的基本形态，属于高兼容类别；第二列的鱼形轮廓属于低频剪影类图像，逆设计后仍能维持连续轮廓，兼容性处于中等水平；第三列的高频纹理虽然在镜面端可恢复，但纸面端会形成极密集的条带与压缩纹理，更接近技术意义上的“可逆”，而不是艺术意义上的“双有意义”，因此兼容性明显下降。
+
+\par 因此，问题二的高水平结论不应简单写成“可以”或“不可以”。更准确的说法是：当镜面图像未指定时，双有意义设计具有较强可行性；当镜面图像被指定时，纸面图案仍可能保持意义，但要求所选纸面图案在几何结构上与圆柱反射产生的环向拉伸、径向压缩和局部弯折具有较高兼容性。具体而言，放射状纹样、对称装饰图、低频轮廓图和抽象几何图案更兼容；而高频细节过多、依赖局部比例关系的复杂图案则更难兼顾两端语义。
+
+\subsection{问题二结论}
+\par 问题二表明，“双有意义”不是一个纯粹的公式判定题，而是一个由自由度、图案类别和视觉容错共同决定的设计问题。当镜面图像未指定时，双有意义设计总体上是可行的；当镜面图像被指定时，纸面图案仍有可能保持意义，但前提是它与圆柱镜反射的固有畸变机制具有较好的结构兼容性。
+
+\section{问题三的建模与求解}
+
+\subsection{问题的数学形式化}
+\par 当纸面图案 $I_{paper}$ 与镜面图像 $I_{mirror}$ 均被完全指定时，需要判断是否存在几何配置 $\theta$ 使得
+\begin{equation}
+\exists\ \theta,\quad I_{mirror}=\mathcal{F}(I_{paper};\theta)\ \land\ I_{paper}=\mathcal{M}(I_{mirror};\theta).
+\end{equation}
+
+\par 若记指定纸面目标为 $P^\ast$、指定镜面目标为 $M^\ast$，那么问题三可以理解为一个受反射算子约束的双目标逆问题：一方面，希望最终纸面图案尽量接近 $P^\ast$；另一方面，又要求其镜面结果尽量接近 $M^\ast$。因此，比起问题一的单向逆设计，这里更适合用“可兼容性”而非“可逆性”来刻画问题本质。
+
+\subsection{精确解的不可得性分析}
+\begin{theorem}[一般不可行性]
+对于独立指定的双图像对 $(I_{paper},I_{mirror})$，当双图像自由度显著高于几何参数空间维数时，精确解通常不存在。
+\end{theorem}
+
+\begin{proof}
+反射映射 $\mathcal{F}(\cdot;\theta)$ 仅由有限维几何参数 $\theta$ 决定。就本文模型而言，$\theta$ 主要包括圆柱位置与尺寸、观察点位置以及虚拟像平面位置等少量连续参数。与之相比，纸面图案和镜面图像包含大量像素自由度，其约束方程数随图像分辨率快速增长。
+
+当 $I_{paper}$ 与 $I_{mirror}$ 被独立给定后，方程组要求所有像素同时满足统一的反射映射关系，而可调参数只有有限维，因此约束通常是超定的。满足这些约束的双图像对在整个图像空间中只占据一个低维子集，故随机给定的双图像对几乎不可能恰好落在该子集上。
+\end{proof}
+
+\par 上述定理说明，问题三不能停留在“证明一般无解”这一层面，还必须继续回答“什么样的图像对更接近可实现边界”。因此，优秀论文在这一问里需要继续推进到结构相容性分析、图像类别分析和可视化判定图，而不是把问题三简化成单纯的维数论证。
+
+\subsection{近似可行性条件}
+\par 虽然精确解通常不存在，但若允许一定误差，则仍可能构造近似可行解。本文从三个维度提出必要条件。
+
+\par \textbf{1. 拓扑相容性。} 反射映射不会凭空制造或消灭主要连通结构，因此纸面图案与镜面图像的连通分量数量、主轮廓层次应保持基本一致。
+
+\par \textbf{2. 频率相容性。} 当局部 Jacobian 的奇异值过大时，高频纹理会被强烈拉伸或压缩，导致细节无法稳定恢复。因此图像的主频带必须落在映射可承受的畸变范围内。
+
+\par \textbf{3. 几何相容性。} 纸面图案占据区域与镜面目标区域之间的面积比例，必须与 Jacobian 行列式的可达范围相匹配，否则图像尺度不可能通过同一反射映射统一实现。
+
+\subsection{容忍畸变下的优化模型}
+\par 基于上述思想，本文将双指定图案的近似设计写成双目标优化问题：
+\begin{equation}
+\min_{P,\theta}
+\left[
+\lambda_p\, d(P,P^\ast)+\lambda_m\, d(\mathcal{F}(P;\theta),M^\ast)+\lambda_r\,\mathrm{Reg}(P)
+\right],
+\end{equation}
+其中 $d(\cdot,\cdot)$ 表示图像距离，$\mathrm{Reg}(P)$ 用于惩罚过细纹理、过密线条和过小色块等不利于制作的结构。该模型强调的不是“强行精确复现”，而是在几何可实现的前提下同时兼顾纸面目标和镜面目标。
+
+\subsection{兼容性判据与设计建议}
+\par 为了把“可兼容”从定性描述落到可计算指标上，本文从镜面匹配度、低频一致性、对称性一致性和复杂度一致性四个方面构造经验兼容性指标
+\begin{equation}
+C(I_{paper},I_{mirror};\theta)=
+\omega_1 S_{mirror}+\omega_2 A_{lf}+\omega_3 A_{sym}+\omega_4 A_{comp},
+\qquad \sum_{i=1}^4 \omega_i=1,
+\end{equation}
+其中 $S_{mirror}$ 描述纸面目标在当前几何下产生的实际镜面结果与指定镜面目标之间的相似程度，$A_{lf}$ 描述二者低频主结构是否一致，$A_{sym}$ 描述旋转或轴对称特征是否一致，$A_{comp}$ 则度量图像复杂度差异是否过大。该定义与代码实现中的兼容性评分完全对应，因此能够自然支持后续相图绘制和案例比较。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{../outputs/cylindrical_anamorphosis/q3_compatibility_phase_diagram.png}
+\caption{纸面目标复杂度与镜面目标复杂度的兼容性相图}
+\label{fig:q3phase}
+\end{figure}
+
+\par 图 \ref{fig:q3phase} 将问题三中的大量纸面-镜面图像对映射到“纸面复杂度-镜面复杂度”平面中，并用兼容性指标 $C$ 对其着色。可以看到，真正接近可实现边界的组合并不多；即使复杂度水平相近，也未必一定兼容，因为镜面匹配度还会受到主轮廓方向、对称性和低频成分分布的影响。但从整体趋势看，低频、结构简单、对称性较强的图像对更容易落入相图中的较高兼容区域，而复杂纹理和块状字形组合则更容易落入困难区域。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.96\textwidth]{../outputs/cylindrical_anamorphosis/q3_compatibility_examples.png}
+\caption{问题三中的高兼容、临界兼容与低兼容示例}
+\label{fig:q3examples}
+\end{figure}
+
+\par 图 \ref{fig:q3examples} 进一步给出了三组代表性案例。对高兼容或临界兼容的组合而言，低频一致性、对称性一致性和复杂度一致性通常较高，即便镜面匹配度不是特别高，也仍有机会通过进一步优化逼近目标；而在低兼容案例中，镜面匹配项会迅速下降，这意味着纸面目标经过固有反射畸变后，几乎不可能同时满足另一幅镜面目标的语义要求。利用这一图示，问题三就从抽象定理转化为可直观解释的“兼容性案例库”。
+
+\par 基于相图和案例，可以将问题三总结为四条规律：第一，低频图像优先，大尺度轮廓、平滑区域和装饰纹样更容易在反射前后保持可辨识性；第二，中心邻域更稳定，靠近圆柱镜周围的区域映射更集中，成像保真度更高；第三，径向或环向结构更兼容，放射状、旋转对称和同心纹样与圆柱镜反射机制天然适配；第四，语义容错决定实现上限，抽象图案、标识图形和装饰纹样更容易实现双有意义，而人物面部、复杂文字和高频写实图像则更难兼顾。
+
+\subsection{问题三结论}
+\par 问题三的结论是：任意给定的一对纸面图案和镜面图案通常不能被同时精确实现，原因在于反射算子带来的非线性扭曲使双目标问题天然受限；但若两者在低频结构、对称性、复杂度与几何尺度上满足较好的相容关系，则仍可能通过优化获得近似可行方案。竞赛建模上，更推荐采用“镜面目标优先、纸面图案反推”的设计路径，并借助兼容性相图判断哪些图像对值得尝试、哪些组合应当主动回避。
+
+\section{灵敏度分析与模型检验}
+
+\subsection{镜面图像重建验证}
+\par 为检验数值实现的一致性，本文将已经生成的纸面图案重新映射回虚拟像平面，并与原始目标图像进行比较。若两者高度一致，则说明逆反射链和回采过程在同一几何模型下是自洽的。
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig3_mirror_reconstruction_comparison.png}
+\subcaption{图3 重建对比}
+\label{fig:fig3_recon}
+\end{minipage}
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig4_mirror_reconstruction_comparison.png}
+\subcaption{图4 重建对比}
+\label{fig:fig4_recon}
+\end{minipage}
+\caption{镜面图像重建验证结果}
+\label{fig:reconstruction}
+\end{figure}
+
+\par 图 \ref{fig:reconstruction} 表明，两幅图像在回采后都能较好恢复目标结构，误差主要集中在图像边缘和局部高频细节区。定量指标如表 \ref{tab:validation} 所示。
+
+\begin{table}[H]
+\centering
+\caption{回采重建质量评估}
+\label{tab:validation}
+\begin{tabular}{cccccc}
+\toprule[1.5pt]
+\textbf{图像} & \textbf{RMSE} & \textbf{PSNR(dB)} & \textbf{SSIM} & \textbf{MAE} & \textbf{有效像素率} \\
+\midrule[1pt]
+图3 & 0.00410 & 47.75 & 0.99974 & 0.00219 & 99.92\% \\
+图4 & 0.00571 & 44.87 & 0.99899 & 0.00145 & 89.33\% \\
+\bottomrule[1.5pt]
+\end{tabular}
+\end{table}
+
+\par 两幅图像的 PSNR 均高于 44 dB，SSIM 接近 1，说明在同一几何模型下，本文生成的纸面图案能够稳定回采出目标镜面图像，模型具有较好的数值一致性。
+
+\subsection{候选几何配置权衡分析}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{../outputs/cylindrical_anamorphosis/candidate_tradeoff_comparison.png}
+\caption{候选几何配置的权衡分析}
+\label{fig:tradeoff}
+\end{figure}
+
+\par 图 \ref{fig:tradeoff} 对候选配置的综合评分、畸变水平和覆盖率进行了横向比较。结果显示，最终选取的公共几何参数并不是单项指标最优，而是在低畸变、高覆盖率和双图像通用性之间取得了较均衡的折中，这也是优秀建模论文中常见的参数选择逻辑。
+
+\par 从左侧散点图可以进一步看出，不同候选方案并未沿着“条件数越小、总评分越高”的单调规律分布，而是表现出明显的多目标竞争关系。例如，编号靠前的方案虽然在畸变控制上更有优势，但对应的有效覆盖率并不占优；相反，一些覆盖率更高的方案往往伴随更大的局部拉伸和更高的 Jacobian 条件数。也就是说，若只追求图像畸变最小，纸面可用区域会被压缩；若只追求纸张利用率最大，则又可能牺牲镜面成像的稳定性。
+
+\par 右侧柱状图则反映了另一层更贴近赛题要求的信息：同一组几何参数对图3 和图4 的适配程度并不一致。图3 作为纵向构图，在前几组候选参数下都保持了接近满幅的覆盖率；图4 由于横向展开更明显，对参数变化更敏感，是决定公共参数优劣的关键约束项。因此，最终方案虽然不是“某一幅图像”的最佳方案，却是“同时兼顾两幅图像”的最稳妥方案。这样的选择更符合竞赛论文的评价标准，因为评审关注的通常不是单个指标峰值，而是整体方案的平衡性、可解释性与可复现性。
+
+\par 从工程实现角度看，这一结果也说明本文采用的综合评分机制是合理的。它没有把覆盖率、畸变或双图像兼容性中的任意一项绝对化，而是强调在实际制作条件下寻找一个能够稳定工作的参数窗口。对于需要落地展示的反射变形装置而言，这种“稳中求优”的参数选择原则比单纯追求最优数值更有实际意义。
+
+\subsection{单参数灵敏度分析}
+\par 为了进一步说明最优参数并非偶然命中，而是处在一个具有可解释结构的局部稳定区间内，本文对圆柱中心位置、圆柱半径、观察点坐标、虚拟像平面位置以及虚拟像中心高度等关键参数进行了单因素扰动分析。分析时每次只改变一个参数，并保持其余参数不变，从而考察综合评分与最小覆盖率如何响应单参数变化。该方法能够直接揭示“哪一个参数更关键”“关键参数应向哪个方向调整”以及“当前最优值是否位于鲁棒区间内”等问题。
+
+\par 与简单给出灵敏度排序相比，这种逐参数扫描更适合本题。原因在于圆柱镜面反射模型的几何含义非常直观：不同参数分别对应圆柱位置、镜柱大小、观察视角和虚拟像面布置，它们对成像的影响路径不同，且往往会以“提升一种指标、牺牲另一种指标”的方式出现。因此，只有把综合评分和覆盖率同时放到同一张图里，才能真正看出参数调整带来的收益与代价。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{../outputs/cylindrical_anamorphosis/sensitivity_score_and_coverage.png}
+\caption{综合评分与纸张覆盖率的灵敏度分析}
+\label{fig:sensitivity_score}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{../outputs/cylindrical_anamorphosis/sensitivity_condition_numbers.png}
+\caption{Jacobian 条件数分布的灵敏度分析}
+\label{fig:sensitivity_cond}
+\end{figure}
+
+\par 图 \ref{fig:sensitivity_score} 和图 \ref{fig:sensitivity_cond} 表明，虚拟像平面位置 $y_{img}$ 和虚拟像中心高度 $z_{center}$ 对模型表现影响最明显。当前最优配置附近，适当减小 $y_{img}$ 通常有助于提升覆盖率并降低条件数；观察点高度和观察距离的影响相对平缓，说明方案在实际搭建时具有一定容错性。
+
+\par 更细致地看，圆柱中心纵向位置 $y_0$ 与观察点纵向位置 $y_v$ 的变化主要影响纸面图案在 A4 区域内的整体分布位置。当这两个参数共同决定的投影区域向纸张中心靠拢时，最小覆盖率和综合评分通常同步上升；一旦图案整体偏向边缘，就会很快触发可用面积下降。相比之下，圆柱半径 $R$ 更多影响的是局部变形强度和纸面压缩程度。半径过小时，镜面曲率过大，会造成部分区域畸变集中；半径过大时，圆柱自身占据的纸面空间增加，可用于布置图案的区域反而被挤压。
+
+\par 对虚拟像平面参数而言，$y_{img}$ 与 $z_{center}$ 的灵敏度最高，这与问题一中的几何分析是吻合的。$y_{img}$ 决定了目标像面与圆柱之间的距离，相当于控制了“镜面图像恢复的尺度基准”；$z_{center}$ 决定了有效成像区域更多落在圆柱的上部还是中下部，从而直接影响纸面图案在纵向上的展开方式。图中可以看到，当这两个参数偏离推荐值时，综合评分与最小覆盖率都会出现同步下滑，说明它们不仅影响图像质量，也影响方案是否还能完整落入 A4 纸面。
+
+\par 另一方面，图 \ref{fig:sensitivity_cond} 给出的条件数分布也提供了重要补充：有些参数虽然对总评分影响看似有限，但会明显改变局部畸变的离散程度。换言之，平均指标相近并不代表图案视觉效果完全相同。若条件数分布变宽，就意味着某些局部区域会出现更明显的拉伸或压缩，从制作角度看，这类方案往往更依赖打印精度和观察位置的稳定性。因此，本文最终选择的参数不仅在平均意义上较优，也在分布意义上更稳健。
+
+\subsection{灵敏度分析结论}
+\par 综合来看，本文模型对关键几何参数的响应是清晰可解释的：虚拟像平面过远会增加畸变不均匀性，圆柱半径过大则会压缩有效纸面区域，而观察点高度在合理范围内波动时对结果影响较小。这说明模型既具有可调性，也具有一定工程鲁棒性。
+
+\section{模型评价与推广}
+
+\subsection{模型优点}
+\begin{compactitem}
+\item 以几何光学为基础，模型推导路径清晰，物理含义明确。
+\item 从问题一到问题三形成了由“可生成”到“可兼容”的递进分析链条，逻辑完整。
+\item 将 A4 约束、圆柱间隙和 Jacobian 畸变统一纳入评价体系，结果具有制作指导意义。
+\item 配套给出了几何示意图、流程图、验证图和灵敏度图，支撑材料较为完整。
+\end{compactitem}
+
+\subsection{模型局限性}
+\begin{compactitem}
+\item 采用理想镜面假设，尚未考虑真实镜面加工误差和反射损耗。
+\item 模型基于单一观察点，尚未处理多视点下的视觉稳定性问题。
+\item 双指定图案部分主要给出理论判据和近似思路，尚未做大规模实例穷举验证。
+\end{compactitem}
+
+\subsection{模型推广}
+\begin{compactitem}
+\item 将圆柱面替换为圆锥面、球面或椭圆柱面后，逆反射链思想仍可继续使用。
+\item 可推广到防伪标签、舞台装置、互动展陈等需要“平面编码-镜面解码”的应用场景。
+\item 若引入多视点优化或视觉感知损失，模型可进一步服务于更复杂的艺术生成任务。
+\end{compactitem}
+
+\begin{thebibliography}{99}
+\bibitem{ref1} 华中杯数学建模竞赛组委会. 反射的艺术[B]. 2025.
+\bibitem{ref2} 司守奎. 数学建模算法与程序[M]. 北京: 国防工业出版社, 2015.
+\bibitem{ref3} 姜启源, 谢金星, 叶俊. 数学模型[M]. 北京: 高等教育出版社, 2011.
+\bibitem{ref4} Hartley R, Zisserman A. Multiple View Geometry in Computer Vision[M]. Cambridge: Cambridge University Press, 2004.
+\bibitem{ref5} Szeliski R. Computer Vision: Algorithms and Applications[M]. Springer, 2022.
+\end{thebibliography}
+
+\newpage
+\begin{appendices}
+
+\section{变形图案生成结果}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig3_paper_pattern.png}
+\subcaption{图3 纸面变形图案}
+\label{fig:fig3_pattern}
+\end{minipage}
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig4_paper_pattern.png}
+\subcaption{图4 纸面变形图案}
+\label{fig:fig4_pattern}
+\end{minipage}
+\caption{生成的纸面图案}
+\label{fig:patterns}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig3_diagnostic.png}
+\subcaption{图3 几何诊断}
+\label{fig:fig3_diag}
+\end{minipage}
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig4_diagnostic.png}
+\subcaption{图4 几何诊断}
+\label{fig:fig4_diag}
+\end{minipage}
+\caption{几何诊断可视化}
+\label{fig:diagnostics}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig3_occupancy.png}
+\subcaption{图3 纸张占用}
+\label{fig:fig3_occ}
+\end{minipage}
+\begin{minipage}[c]{0.48\textwidth}
+\centering
+\includegraphics[width=0.95\textwidth]{../outputs/cylindrical_anamorphosis/fig4_occupancy.png}
+\subcaption{图4 纸张占用}
+\label{fig:fig4_occ}
+\end{minipage}
+\caption{A4 纸张占用分析}
+\label{fig:occupancy}
+\end{figure}
+
+\section{核心算法伪代码}
+
+\begin{lstlisting}[language=Python]
+def inverse_reflection_chain(P_img, V, cylinder, paper_z=0):
+    """
+    从虚拟像点反推纸面点的逆反射链
+    """
+    d_view = P_img - V
+    t = intersect_line_cylinder(V, d_view, cylinder)
+    P_cyl = V + t * d_view
+
+    n = compute_cylinder_normal(P_cyl, cylinder)
+    d_out = normalize(P_img - P_cyl)
+    d_in = d_out - 2 * dot(d_out, n) * n
+
+    s = -P_cyl[2] / d_in[2]
+    P_paper = P_cyl + s * d_in
+    return P_paper
+
+
+def compute_jacobian(P_img, theta, eps=1e-6):
+    """
+    用数值微分近似 Jacobian
+    """
+    J = zeros((2, 2))
+    P0 = inverse_reflection_chain(P_img, theta.viewer, theta.cylinder)
+    for i in range(2):
+        P_shift = P_img.copy()
+        P_shift[i] += eps
+        P_shift_paper = inverse_reflection_chain(P_shift, theta.viewer, theta.cylinder)
+        J[:, i] = (P_shift_paper[:2] - P0[:2]) / eps
+    return J
+\end{lstlisting}
+
+\section{Python 实现代码}
+
+\subsection{变形图案生成主程序}
+\lstinputlisting[language=Python, caption={generate\_patterns.py}]{../anamorphosis/generate_patterns.py}
+
+\subsection{分析与可视化程序}
+\lstinputlisting[language=Python, caption={generate\_analysis\_assets.py}]{../anamorphosis/generate_analysis_assets.py}
+
+\section{支撑材料清单}
+\par 本文研究过程中的主要支撑材料如下。
+
+\par \textbf{输入图像：}位于 \texttt{附件} 目录中的图3 和图4 原始图片。
+
+\par \textbf{生成结果：}位于 \texttt{outputs/cylindrical\_anamorphosis/} 目录中的纸面图案、诊断图、占用图、几何示意图、流程图、回采验证图以及灵敏度分析图。
+
+\par \textbf{结构化报告：}包括 \texttt{parameter\_report.json} 与 \texttt{validation\_metrics.json}，分别记录几何搜索结果和验证指标。
+
+\par \textbf{源码文件：}
+\begin{compactitem}
+\item \path{anamorphosis/generate_patterns.py}
+\item \path{anamorphosis/generate_analysis_assets.py}
+\end{compactitem}
+
+\end{appendices}
+
+\end{document}

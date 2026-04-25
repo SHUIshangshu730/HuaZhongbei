@@ -1,0 +1,23 @@
+INFO:  latexindent version 3.15, 2022-01-21, a script to indent .tex files
+       latexindent lives here: /usr/share/texlive/texmf-dist/scripts/latexindent/
+       Sat Apr 25 13:23:11 2026
+       Filename: /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.tex
+INFO:  Processing switches:
+       -s|--silent: Silent mode active (you have used either -s or --silent)
+       -w|--overwrite: Overwrite mode active, will make a back up of /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.tex first
+INFO:  Directory for backup files and indent.log: /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0
+INFO:  YAML settings read: defaultSettings.yaml
+       Reading defaultSettings.yaml from /usr/share/texlive/texmf-dist/scripts/latexindent/defaultSettings.yaml
+INFO:  YAML settings read: indentconfig.yaml or .indentconfig.yaml
+       Home directory is /home/xianz (didn't find either indentconfig.yaml or .indentconfig.yaml)
+       To specify user settings you would put indentconfig.yaml here: /home/xianz/indentconfig.yaml
+       Alternatively, you can use the hidden file .indentconfig.yaml as: /home/xianz/.indentconfig.yaml
+INFO:  Backup procedure (-w flag active):
+       copying /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.tex to /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.bak0
+       Backup file: /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.bak0
+       /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.tex will be overwritten after indentation
+FATAL Could not write to backup file /home/xianz/huazhongbei/latexè®ºææ¨¡æ¿3.0/å½èµ.bak0. Please check permissions.
+      Exiting, no indendation done.
+       --------------
+INFO:  Please direct all communication/issues to:
+        https://github.com/cmhughes/latexindent.pl

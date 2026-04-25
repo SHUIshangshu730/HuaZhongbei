@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-24T02:44:15",
+  "generated_at": "2026-04-25T14:07:10",
   "base_report": "/home/xianz/huazhongbei/outputs/cylindrical_anamorphosis/parameter_report.json",
   "selected_geometry": {
     "x0": 0.0,
@@ -261,6 +261,19 @@
       }
     }
   ],
+  "compatibility_scoring": {
+    "weights": {
+      "mirror_match": 0.25,
+      "low_freq_alignment": 0.25,
+      "symmetry_alignment": 0.25,
+      "complexity_alignment": 0.25
+    },
+    "thresholds": {
+      "high_overlap_min": 0.74,
+      "mixed_overlap_min": 0.68,
+      "low_overlap_max": 0.68
+    }
+  },
   "jobs": {
     "fig3": {
       "input_path": "/home/xianz/huazhongbei/附件/图3.png",
@@ -509,16 +522,678 @@
       }
     ]
   },
+  "compatibility_pairs": [
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": 0.04082962690697798,
+        "low_freq_alignment": 0.9944823521288193,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9991928397079687,
+        "overall": 0.7586262046859416
+      }
+    },
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": 0.11735023844076316,
+        "low_freq_alignment": 0.9610897422638294,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9593409699562232,
+        "overall": 0.7297464574674519
+      }
+    },
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": 0.09385316118132132,
+        "low_freq_alignment": 1.0,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 1.0,
+        "overall": 0.7734632902953303
+      }
+    },
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": 0.035369459587129067,
+        "low_freq_alignment": 0.803966532820146,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9191325960190656,
+        "overall": 0.6896171471065852
+      }
+    },
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": 0.05508085621659283,
+        "low_freq_alignment": 0.9782069950866459,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9874093912735094,
+        "overall": 0.755174310644187
+      }
+    },
+    {
+      "paper_key": "flower",
+      "paper_label": "Floral pattern",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.29355318196207936,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": 0.04600610332718471,
+        "low_freq_alignment": 0.9627077653376533,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9090329475269441,
+        "overall": 0.7005447848046047
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": 0.10753486675567175,
+        "low_freq_alignment": 1.0,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 1.0,
+        "overall": 0.776883716688918
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": 0.0338443024120271,
+        "low_freq_alignment": 0.9666073901350101,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9601481302482545,
+        "overall": 0.7104511755010711
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": 0.04195200783111285,
+        "low_freq_alignment": 0.9944823521288193,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9991928397079687,
+        "overall": 0.7589067999169752
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": -0.049888592835970545,
+        "low_freq_alignment": 0.8094841806913265,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9199397563110969,
+        "overall": 0.6698838360416133
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": 0.08822946833604565,
+        "low_freq_alignment": 0.9837246429578265,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9866022309814781,
+        "overall": 0.7646390855688376
+      }
+    },
+    {
+      "paper_key": "compass",
+      "paper_label": "Compass emblem",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.29274602167004804,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": 0.08817499503198116,
+        "low_freq_alignment": 0.9571901174664728,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9082257872349128,
+        "overall": 0.7095058056900008
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": -0.031240450847128752,
+        "low_freq_alignment": 0.9666073901350101,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9601481302482545,
+        "overall": 0.694179987186282
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": -0.20125119456698295,
+        "low_freq_alignment": 1.0,
+        "symmetry_alignment": 0.7765220391417347,
+        "complexity_alignment": 1.0,
+        "overall": 0.6438177111436879
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": -0.027482359253920684,
+        "low_freq_alignment": 0.9610897422638294,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9593409699562232,
+        "overall": 0.693538308043781
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": 0.0034398156934442436,
+        "low_freq_alignment": 0.8428767905563165,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9597916260628424,
+        "overall": 0.6718282778803989
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": 0.0009603799019254387,
+        "low_freq_alignment": 0.9828827471771836,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9467503612297326,
+        "overall": 0.7029495918794585
+      }
+    },
+    {
+      "paper_key": "fish",
+      "paper_label": "Fish silhouette",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.25289415191830256,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": 0.0033747416505492886,
+        "low_freq_alignment": 0.9237975076014828,
+        "symmetry_alignment": 0.7793660783812156,
+        "complexity_alignment": 0.8683739174831673,
+        "overall": 0.6437280612791038
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": -0.06372016363810808,
+        "low_freq_alignment": 0.8855524230343328,
+        "symmetry_alignment": 0.8747632293297221,
+        "complexity_alignment": 0.9232544497404498,
+        "overall": 0.6549624846165991
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": -0.19896691224254442,
+        "low_freq_alignment": 0.9189450328993227,
+        "symmetry_alignment": 0.7708456258379658,
+        "complexity_alignment": 0.9631063194921952,
+        "overall": 0.6134825164967348
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": -0.05987731897515851,
+        "low_freq_alignment": 0.8800347751631521,
+        "symmetry_alignment": 0.8747632293297221,
+        "complexity_alignment": 0.9224472894484184,
+        "overall": 0.6543419937415336
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": 0.050554926019030666,
+        "low_freq_alignment": 0.9239317576569938,
+        "symmetry_alignment": 0.8747632293297221,
+        "complexity_alignment": 0.9966853065706471,
+        "overall": 0.7114838048940983
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": -0.06367877376787483,
+        "low_freq_alignment": 0.9018277800765063,
+        "symmetry_alignment": 0.8747632293297221,
+        "complexity_alignment": 0.9098566807219278,
+        "overall": 0.6556922290900703
+      }
+    },
+    {
+      "paper_key": "arrow",
+      "paper_label": "Arrow sign",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.21600047141049777,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": -0.042029077193540064,
+        "low_freq_alignment": 0.8427425405008055,
+        "symmetry_alignment": 0.7736688750143685,
+        "complexity_alignment": 0.8314802369753624,
+        "overall": 0.6014656438242492
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": 0.10191322306799572,
+        "low_freq_alignment": 0.9837246429578265,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9866022309814781,
+        "overall": 0.768060024251825
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": 0.15110624399334305,
+        "low_freq_alignment": 0.9828827471771836,
+        "symmetry_alignment": 0.8812048792089923,
+        "complexity_alignment": 0.9467503612297326,
+        "overall": 0.7404860579023128
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": 0.16822473187016632,
+        "low_freq_alignment": 0.9782069950866459,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9874093912735094,
+        "overall": 0.7834602795575805
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": 0.0536738713790802,
+        "low_freq_alignment": 0.8257595377335001,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 0.9065419872925751,
+        "overall": 0.6964938491012889
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "High overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": 0.08503762793186599,
+        "low_freq_alignment": 1.0,
+        "symmetry_alignment": 1.0,
+        "complexity_alignment": 1.0,
+        "overall": 0.7712594069829666
+      }
+    },
+    {
+      "paper_key": "checker",
+      "paper_label": "Checker motif",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.30614379068856995,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": 0.09880368062015515,
+        "low_freq_alignment": 0.9409147604242991,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9216235562534347,
+        "overall": 0.7114435800811314
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "compass",
+      "mirror_label": "Compass emblem",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.29274602167004804,
+        "mirror_match": 0.1369746710310268,
+        "low_freq_alignment": 0.9571901174664728,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9082257872349128,
+        "overall": 0.7217057246897622
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "fish",
+      "mirror_label": "Fish silhouette",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.25289415191830256,
+        "mirror_match": 0.11557050119738943,
+        "low_freq_alignment": 0.9237975076014828,
+        "symmetry_alignment": 0.7793660783812156,
+        "complexity_alignment": 0.8683739174831673,
+        "overall": 0.6717770011658138
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "flower",
+      "mirror_label": "Floral pattern",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.29355318196207936,
+        "mirror_match": 0.15984649734618137,
+        "low_freq_alignment": 0.9627077653376533,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9090329475269441,
+        "overall": 0.7290048833093539
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "letter_h",
+      "mirror_label": "Letter-like contour",
+      "compatibility_class": "Low overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.21268577798114496,
+        "mirror_match": 0.05018114079249167,
+        "low_freq_alignment": 0.7666742981577992,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.8281655435460097,
+        "overall": 0.6323633263807343
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "checker",
+      "mirror_label": "Checker motif",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.30614379068856995,
+        "mirror_match": 0.10652201815315296,
+        "low_freq_alignment": 0.9409147604242991,
+        "symmetry_alignment": 0.8844323230266365,
+        "complexity_alignment": 0.9216235562534347,
+        "overall": 0.7133731644643808
+      }
+    },
+    {
+      "paper_key": "dense",
+      "paper_label": "Dense texture",
+      "mirror_key": "dense",
+      "mirror_label": "Dense texture",
+      "compatibility_class": "Mixed overlap",
+      "metrics": {
+        "paper_complexity": 0.3845202344351353,
+        "mirror_complexity": 0.3845202344351353,
+        "mirror_match": 0.09570414565969233,
+        "low_freq_alignment": 1.0,
+        "symmetry_alignment": 0.7822205340142927,
+        "complexity_alignment": 1.0,
+        "overall": 0.7194811699184962
+      }
+    }
+  ],
+  "binocular_view_analysis": {
+    "reference_context": "fig4",
+    "ipd_mm": 64.0,
+    "plane_width_mm": 51.323828920570264,
+    "plane_height_mm": 28.0,
+    "sample_count": 7,
+    "mean_sampled_paper_separation_mm": 112.47426437183175,
+    "max_sampled_paper_separation_mm": 129.3473545631507,
+    "zone": {
+      "reference_fraction": 0.9878826530612245,
+      "threshold": 0.9,
+      "selected_joint_ratio": 0.8747579083279535,
+      "selected_single_ratio": 0.9435119431891543,
+      "max_joint_ratio": 0.9531956100710135,
+      "best_center": {
+        "xv": -25.0,
+        "yv": -145.0
+      },
+      "recommended_bbox": {
+        "x_min": -40.0,
+        "x_max": 40.0,
+        "y_min": -190.13888888888889,
+        "y_max": -145.0
+      },
+      "recommended_fraction_of_grid": 0.1597051597051597
+    }
+  },
+  "q3_dof_comparison": {
+    "geometry_parameter_keys": [
+      "x0",
+      "y0",
+      "R",
+      "H",
+      "xv",
+      "yv",
+      "zv",
+      "y_img",
+      "z_img_center"
+    ],
+    "geometry_parameter_count": 9,
+    "paper_target_shape_px": [
+      320,
+      320
+    ],
+    "mirror_target_shape_px": [
+      320,
+      320
+    ],
+    "paper_scalar_dof": 102400,
+    "mirror_scalar_dof": 102400,
+    "single_image_to_geometry_ratio": 11377.777777777777,
+    "dual_image_to_geometry_ratio": 22755.555555555555,
+    "pair_class_counts": {
+      "Low overlap": 11,
+      "Mixed overlap": 15,
+      "High overlap": 10
+    },
+    "pair_count": 36
+  },
+  "synthetic_spatial_mockup": {
+    "target_key": "compass",
+    "target_label": "Compass emblem",
+    "plane_height_mm": 32.0,
+    "plane_width_mm": 32.0,
+    "round_trip_metrics": {
+      "valid_fraction": 0.94970703125,
+      "mae": 0.00048775997436138535,
+      "rmse": 0.005060678380964705,
+      "psnr_db": 45.91582524675306,
+      "max_abs_error": 0.10762377828359604,
+      "mean_channel_correlation": 0.9999187437288116,
+      "global_ssim": 0.9999181014370458
+    },
+    "honesty_label": "Synthetic scene visualization — not a photograph"
+  },
   "generated_files": [
     "fig3_target_image.png",
     "fig4_target_image.png",
     "target_image_gallery.png",
     "geometry_schematic.png",
     "algorithm_workflow_flowchart.png",
+    "binocular_viewing_geometry.png",
+    "binocular_viewing_zone.png",
+    "spatial_experiment_mockup.png",
     "fig3_mirror_reconstruction_comparison.png",
     "fig4_mirror_reconstruction_comparison.png",
     "candidate_tradeoff_comparison.png",
     "sensitivity_score_and_coverage.png",
-    "sensitivity_condition_numbers.png"
+    "sensitivity_condition_numbers.png",
+    "q2_free_design_gallery.png",
+    "q2_specified_mirror_gallery.png",
+    "q3_compatibility_phase_diagram.png",
+    "q3_pairwise_compatibility_heatmap.png",
+    "q3_compatibility_examples.png",
+    "q3_dof_constraint_comparison.png"
   ]
 }
