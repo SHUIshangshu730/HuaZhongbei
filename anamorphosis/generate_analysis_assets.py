@@ -16,7 +16,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.cm import ScalarMappable
 from matplotlib.lines import Line2D
+from matplotlib.colors import LinearSegmentedColormap, PowerNorm, to_rgb
 from matplotlib.patches import Circle, Ellipse, FancyArrowPatch, FancyBboxPatch, Polygon, Rectangle
 from matplotlib.path import Path as MplPath
 from matplotlib.transforms import Affine2D
@@ -68,6 +70,11 @@ DESIGN_SYSTEM = {
     "warning": "#9b6a11",
     "danger": "#9a3f38",
     "neutral_fill": "#e7ddd0",
+    "error_low": "#faf5ec",
+    "error_mid": "#d4b261",
+    "error_high": "#a3463d",
+    "error_invalid": "#efe5d5",
+    "error_contour": "#8b735b",
 }
 FLOW_BOX_COLORS = {
     "input": "#d9e7f7",
@@ -111,6 +118,11 @@ plt.rcParams.update(
     }
 )
 
+RECONSTRUCTION_ERROR_CMAP = LinearSegmentedColormap.from_list(
+    "reconstruction_error_house",
+    [DESIGN_SYSTEM["error_low"], DESIGN_SYSTEM["error_mid"], DESIGN_SYSTEM["error_high"]],
+)
+
 
 def style_panel(
     ax: plt.Axes,
@@ -141,13 +153,13 @@ def style_panel(
         ax.set_yticks([])
 
 
-def add_panel_badge(ax: plt.Axes, text: str, *, facecolor: str, textcolor: str = "white", anchor: tuple[float, float] = (0.02, 0.98)) -> None:
+def add_panel_badge(ax: plt.Axes, text: str, *, facecolor: str, textcolor: str = "white", anchor: tuple[float, float] = (0.98, 0.98)) -> None:
     ax.text(
         anchor[0],
         anchor[1],
         text,
         transform=ax.transAxes,
-        ha="left",
+        ha="right",
         va="top",
         fontsize=9.0,
         fontweight="semibold",
@@ -157,11 +169,27 @@ def add_panel_badge(ax: plt.Axes, text: str, *, facecolor: str, textcolor: str =
 
 
 def add_figure_note(fig: plt.Figure, text: str) -> None:
-    fig.text(0.5, 0.012, text, ha="center", va="bottom", fontsize=9.3, color=DESIGN_SYSTEM["muted"])
+    # Shrink the Axes layout region so constrained_layout leaves
+    # reserved space for elements it does NOT manage:
+    #   - fig.text at the bottom (the note itself)
+    #   - fig.suptitle at the top (if present)
+    # Both live outside the layout engine, so we must carve out space
+    # via the rect parameter.
+    top_margin = 0.04  # reserve bottom 4% for the note
+    if getattr(fig, "_suptitle", None) is not None:
+        top_margin = 0.08  # also reserve top 8% for the suptitle
+    layout_engine = fig.get_layout_engine()
+    set_layout = getattr(layout_engine, "set", None)
+    if callable(set_layout):
+        try:
+            set_layout(rect=(0, 0.06, 1, 1.0 - top_margin))
+        except TypeError:
+            pass  # fallback for layout engines without rect support
+    fig.text(0.5, 0.015, text, ha="center", va="bottom", fontsize=9.3, color=DESIGN_SYSTEM["muted"])
 
 
 def save_figure(fig: plt.Figure, output_path: Path, *, dpi: int = 220) -> str:
-    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", facecolor=DESIGN_SYSTEM["figure_face"])
+    fig.savefig(output_path, dpi=dpi, bbox_inches="tight", pad_inches=0.3, facecolor=DESIGN_SYSTEM["figure_face"])
     plt.close(fig)
     return output_path.name
 
@@ -685,6 +713,271 @@ def build_virtual_plane_mapping(geometry: Any, *, size_px: int = 320, plane_heig
     }
 
 
+def build_problem1_chain_samples(context: dict[str, Any], *, sample_count: int = 5) -> list[dict[str, float]]:
+    mapping = context["mapping"]
+    mask = context["clipped_mask"]
+    row = pick_dense_valid_row(mask)
+    cols = select_row_samples(mask, row, sample_count=sample_count)
+    samples: list[dict[str, float]] = []
+    for index, col in enumerate(cols, start=1):
+        samples.append(
+            {
+                "index": float(index),
+                "X": float(mapping["X"][row, col]),
+                "Z": float(mapping["Z"][row, col]),
+                "Hx": float(mapping["Hx"][row, col]),
+                "Hy": float(mapping["Hy"][row, col]),
+                "Hz": float(mapping["Hz"][row, col]),
+                "Ax": float(mapping["Ax"][row, col]),
+                "Ay": float(mapping["Ay"][row, col]),
+            }
+        )
+    return samples
+
+
+def downsample_paper_hits(mapping: dict[str, Any], mask: MaskArray, *, max_points: int = 2400) -> tuple[FloatArray, FloatArray]:
+    x_vals = mapping["Ax"][mask].astype(np.float64)
+    y_vals = mapping["Ay"][mask].astype(np.float64)
+    if x_vals.size <= max_points:
+        return x_vals, y_vals
+    indices = np.linspace(0, x_vals.size - 1, max_points, dtype=np.int64)
+    return x_vals[indices], y_vals[indices]
+
+
+def build_occupancy_overlay(occupancy: FloatArray) -> FloatImageArray:
+    strength = normalize01(np.log1p(occupancy.astype(np.float64)))
+    overlay = np.ones((*strength.shape, 3), dtype=np.float32)
+    soft = np.array(to_rgb(DESIGN_SYSTEM["ray_soft"]), dtype=np.float32)
+    accent = np.array(to_rgb(DESIGN_SYSTEM["ray"]), dtype=np.float32)
+    soft_blend = (0.60 * strength)[..., None].astype(np.float32)
+    accent_blend = (0.16 * strength**1.6)[..., None].astype(np.float32)
+    overlay = (1.0 - soft_blend) * overlay + soft_blend * soft
+    overlay = (1.0 - accent_blend) * overlay + accent_blend * accent
+    return overlay
+
+
+def blend_rgb_fields(start_color: str, end_color: str, amount: FloatArray) -> FloatImageArray:
+    mix = np.clip(amount, 0.0, 1.0).astype(np.float32)[..., None]
+    start = np.array(to_rgb(start_color), dtype=np.float32)
+    end = np.array(to_rgb(end_color), dtype=np.float32)
+    return (1.0 - mix) * start + mix * end
+
+
+def build_reconstruction_error_visual(reference_image: FloatImageArray, error_map: FloatArray, valid_mask: MaskArray) -> tuple[FloatImageArray, PowerNorm, dict[str, float]]:
+    stats = {"p95": 0.0, "p995": 0.0, "vmax": 1.0}
+    invalid_fill = np.broadcast_to(np.array(to_rgb(DESIGN_SYSTEM["error_invalid"]), dtype=np.float32), (*error_map.shape, 3)).copy()
+    if not np.any(valid_mask):
+        return invalid_fill, PowerNorm(gamma=0.38, vmin=0.0, vmax=1.0), stats
+
+    valid_errors = error_map[valid_mask].astype(np.float64)
+    stats["p95"] = float(np.percentile(valid_errors, 95.0))
+    stats["p995"] = float(np.percentile(valid_errors, 99.5))
+    stats["vmax"] = max(stats["p995"], stats["p95"] * 1.25, 1.0e-4)
+    norm = PowerNorm(gamma=0.38, vmin=0.0, vmax=stats["vmax"])
+
+    reference_gray = grayscale_image(reference_image)
+    underlay_strength = 0.52 * np.power(1.0 - reference_gray, 0.92)
+    underlay = blend_rgb_fields(DESIGN_SYSTEM["error_low"], DESIGN_SYSTEM["neutral_fill"], underlay_strength)
+
+    encoded = RECONSTRUCTION_ERROR_CMAP(norm(np.clip(error_map, 0.0, stats["vmax"])))[:, :, :3].astype(np.float32)
+    alpha = np.zeros_like(error_map, dtype=np.float32)
+    alpha[valid_mask] = (0.16 + 0.82 * norm(np.clip(error_map[valid_mask], 0.0, stats["vmax"]))).astype(np.float32)
+
+    visual = underlay.copy()
+    alpha_3 = alpha[..., None]
+    visual[valid_mask] = (1.0 - alpha_3[valid_mask]) * underlay[valid_mask] + alpha_3[valid_mask] * encoded[valid_mask]
+    visual[~valid_mask] = invalid_fill[~valid_mask]
+    return visual, norm, stats
+
+
+def draw_reconstruction_process_scene(ax: plt.Axes, context: dict[str, Any], geometry: Any) -> None:
+    metrics = context["metrics"]
+    ax.set_facecolor(DESIGN_SYSTEM["figure_face"])
+
+    x_grid = np.arange(-120.0, 121.0, 35.0)
+    y_grid = np.arange(-240.0, 161.0, 40.0)
+    for x_value in x_grid:
+        line = scene_project(np.array([[x_value, float(y_grid[0]), 0.0], [x_value, float(y_grid[-1]), 0.0]], dtype=np.float64))
+        ax.plot(line[:, 0], line[:, 1], color=DESIGN_SYSTEM["grid"], linewidth=0.75, alpha=0.34, zorder=0.35)
+    for y_value in y_grid:
+        line = scene_project(np.array([[float(x_grid[0]), y_value, 0.0], [float(x_grid[-1]), y_value, 0.0]], dtype=np.float64))
+        ax.plot(line[:, 0], line[:, 1], color=DESIGN_SYSTEM["grid"], linewidth=0.75, alpha=0.34, zorder=0.35)
+
+    page_corners = np.array(
+        [
+            [GP.PAGE_X_MIN, GP.PAGE_Y_MIN, 0.0],
+            [GP.PAGE_X_MAX, GP.PAGE_Y_MIN, 0.0],
+            [GP.PAGE_X_MAX, GP.PAGE_Y_MAX, 0.0],
+            [GP.PAGE_X_MIN, GP.PAGE_Y_MAX, 0.0],
+        ],
+        dtype=np.float64,
+    )
+    page_outline = scene_project(page_corners)
+    ax.add_patch(Polygon(page_outline + np.array([9.0, -7.0]), closed=True, facecolor=DESIGN_SYSTEM["paper_shadow"], edgecolor="none", alpha=0.18, zorder=0.65))
+    ax.add_patch(Polygon(page_outline, closed=True, facecolor=DESIGN_SYSTEM["page_fill"], edgecolor=DESIGN_SYSTEM["page_edge"], linewidth=1.45, zorder=0.92))
+    add_projected_image(
+        ax,
+        np.clip(context["paper_pattern"], 0.0, 1.0),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MAX, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MAX, 0.0),
+        zorder=1.08,
+        alpha=0.98,
+    )
+    add_projected_image(
+        ax,
+        build_occupancy_overlay(context["occupancy"]),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MAX, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MAX, 0.0),
+        zorder=1.18,
+        alpha=0.68,
+    )
+    draw_scene_ground_circle(
+        ax,
+        geometry.x0,
+        geometry.y0,
+        geometry.R,
+        facecolor=DESIGN_SYSTEM["neutral_fill"],
+        edgecolor=DESIGN_SYSTEM["cylinder"],
+        linewidth=1.05,
+        alpha=0.24,
+        zorder=1.28,
+    )
+
+    plane_half_width = context["plane_width_mm"] / 2.0
+    plane_half_height = context["plane_height_mm"] / 2.0
+    plane_lower_left = (geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height)
+    plane_lower_right = (geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height)
+    plane_upper_left = (geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height)
+    plane_outline_3d = np.array(
+        [
+            [geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height],
+            [geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height],
+            [geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height],
+            [geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height],
+        ],
+        dtype=np.float64,
+    )
+    plane_outline = scene_project(plane_outline_3d)
+    ax.add_patch(Polygon(plane_outline, closed=True, facecolor=DESIGN_SYSTEM["virtual_plane_soft"], edgecolor="none", alpha=0.22, zorder=3.04))
+    add_projected_image(ax, np.clip(context["reconstructed"], 0.0, 1.0), plane_lower_left, plane_lower_right, plane_upper_left, zorder=3.22, alpha=0.99)
+    ax.add_patch(Polygon(plane_outline, closed=True, fill=False, edgecolor=DESIGN_SYSTEM["virtual_plane"], linewidth=1.5, zorder=3.38))
+
+    draw_scene_cylinder(ax, geometry)
+    draw_scene_observer(ax, geometry, ipd_mm=0.0)
+
+    viewer_pt = scene_project(np.array([geometry.xv, geometry.yv, geometry.zv], dtype=np.float64))
+    samples = build_problem1_chain_samples(context, sample_count=4)
+    primary_idx = len(samples) // 2
+    sample_bound_points = [viewer_pt]
+    for idx, sample in enumerate(samples):
+        virtual_pt = scene_project(np.array([sample["X"], geometry.y_img, sample["Z"]], dtype=np.float64))
+        hit_pt = scene_project(np.array([sample["Hx"], sample["Hy"], sample["Hz"]], dtype=np.float64))
+        paper_pt = scene_project(np.array([sample["Ax"], sample["Ay"], 0.0], dtype=np.float64))
+        sample_bound_points.extend([virtual_pt, hit_pt, paper_pt])
+
+        is_primary = idx == primary_idx
+        alpha = 0.94 if is_primary else 0.48
+        ax.plot([paper_pt[0], hit_pt[0]], [paper_pt[1], hit_pt[1]], color=DESIGN_SYSTEM["ray"], linewidth=2.0 if is_primary else 1.35, alpha=alpha, zorder=4.18)
+        ax.plot([hit_pt[0], viewer_pt[0]], [hit_pt[1], viewer_pt[1]], color=DESIGN_SYSTEM["viewer"], linestyle="--", linewidth=1.7 if is_primary else 1.0, alpha=alpha, zorder=4.12)
+        ax.plot([hit_pt[0], virtual_pt[0]], [hit_pt[1], virtual_pt[1]], color=DESIGN_SYSTEM["virtual_plane"], linewidth=1.45 if is_primary else 0.9, alpha=0.60 if is_primary else 0.22, zorder=3.92)
+        ax.scatter([paper_pt[0]], [paper_pt[1]], s=20 if is_primary else 14, color=DESIGN_SYSTEM["ink"], edgecolors="white", linewidths=0.45, zorder=4.34)
+        ax.scatter([hit_pt[0]], [hit_pt[1]], s=22 if is_primary else 15, color=DESIGN_SYSTEM["cylinder"], edgecolors="white", linewidths=0.45, zorder=4.38)
+        ax.scatter([virtual_pt[0]], [virtual_pt[1]], s=20 if is_primary else 13, color=DESIGN_SYSTEM["virtual_plane"], edgecolors="white", linewidths=0.45, zorder=4.30)
+        if is_primary:
+            ax.annotate(
+                "Representative ray chain",
+                xy=(float(hit_pt[0]), float(hit_pt[1])),
+                xytext=(float(hit_pt[0] - 84.0), float(hit_pt[1] - 38.0)),
+                fontsize=8.9,
+                color=DESIGN_SYSTEM["ink"],
+                arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["ink"]},
+                zorder=5.05,
+            )
+
+    plane_anchor = scene_project(np.array([geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height], dtype=np.float64))
+    paper_anchor = scene_project(np.array([GP.PAGE_X_MAX, GP.PAGE_Y_MIN + 44.0, 0.0], dtype=np.float64))
+    cylinder_anchor = scene_project(np.array([geometry.x0 + geometry.R, geometry.y0, geometry.H * 0.78], dtype=np.float64))
+    observer_anchor = scene_project(np.array([geometry.xv, geometry.yv, geometry.zv + 18.0], dtype=np.float64))
+    ax.annotate(
+        "Perceived reconstruction\n(on virtual plane $\\Pi_v$)",
+        xy=(float(plane_anchor[0]), float(plane_anchor[1])),
+        xytext=(plane_anchor[0] + 58.0, plane_anchor[1] + 38.0),
+        fontsize=9.5,
+        color=DESIGN_SYSTEM["virtual_plane"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["virtual_plane"]},
+        zorder=5.15,
+    )
+    ax.annotate(
+        "Printed paper pattern",
+        xy=(float(paper_anchor[0]), float(paper_anchor[1])),
+        xytext=(paper_anchor[0] + 42.0, paper_anchor[1] - 24.0),
+        fontsize=9.5,
+        color=DESIGN_SYSTEM["page_edge"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["page_edge"]},
+        zorder=5.15,
+    )
+    ax.annotate(
+        "Cylinder mirror",
+        xy=(float(cylinder_anchor[0]), float(cylinder_anchor[1])),
+        xytext=(cylinder_anchor[0] + 40.0, cylinder_anchor[1] + 8.0),
+        fontsize=9.5,
+        color=DESIGN_SYSTEM["cylinder"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["cylinder"]},
+        zorder=5.15,
+    )
+    ax.annotate(
+        "Observer V",
+        xy=(float(observer_anchor[0]), float(observer_anchor[1])),
+        xytext=(observer_anchor[0] - 74.0, observer_anchor[1] + 24.0),
+        fontsize=9.5,
+        color=DESIGN_SYSTEM["viewer"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["viewer"]},
+        zorder=5.15,
+    )
+    ax.text(
+        0.02,
+        0.93,
+        f"Virtual plane: {context['plane_width_mm']:.1f} × {context['plane_height_mm']:.1f} mm\n"
+        f"valid support = {metrics['valid_fraction']:.1%}, RMSE = {metrics['rmse']:.4f}, PSNR = {metrics['psnr_db']:.1f} dB",
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=8.95,
+        color=DESIGN_SYSTEM["ink"],
+        bbox={"boxstyle": "round,pad=0.32", "facecolor": DESIGN_SYSTEM["panel_face"], "edgecolor": DESIGN_SYSTEM["panel_edge"]},
+        zorder=5.18,
+    )
+    ax.legend(
+        [
+            Line2D([0], [0], color=DESIGN_SYSTEM["ray"], linewidth=1.9),
+            Line2D([0], [0], color=DESIGN_SYSTEM["viewer"], linewidth=1.5, linestyle="--"),
+            Line2D([0], [0], color=DESIGN_SYSTEM["virtual_plane"], linewidth=1.2),
+        ],
+        ["paper → mirror", "mirror → observer", "virtual extension"],
+        loc="lower left",
+        bbox_to_anchor=(0.01, 0.02),
+        frameon=True,
+        fontsize=8.4,
+        handlelength=2.6,
+    )
+    ax.set_title("Panel C — oblique reconstruction process view", loc="left", pad=10.0, fontsize=12.1, fontweight="semibold", color=DESIGN_SYSTEM["ink"])
+    add_panel_badge(ax, "C", facecolor=DESIGN_SYSTEM["ink"])
+    ax.axis("off")
+
+    bound_points = np.vstack(
+        [
+            page_outline,
+            plane_outline,
+            scene_project(np.array([[geometry.xv, geometry.yv, geometry.zv + 18.0], [geometry.x0 + geometry.R, geometry.y0, geometry.H]], dtype=np.float64)),
+            np.vstack(sample_bound_points),
+        ]
+    )
+    ax.set_xlim(float(np.min(bound_points[:, 0]) - 44.0), float(np.max(bound_points[:, 0]) + 72.0))
+    ax.set_ylim(float(np.min(bound_points[:, 1]) - 34.0), float(np.max(bound_points[:, 1]) + 46.0))
+
+
 def simulate_mirror_from_page(page_image: FloatImageArray, geometry: Any, *, size_px: int = 320, plane_height_mm: float = 32.0) -> tuple[FloatImageArray, MaskArray]:
     context = build_virtual_plane_mapping(geometry, size_px=size_px, plane_height_mm=plane_height_mm)
     mirror, mask = sample_page_image(page_image, context["mapping"]["Ax"], context["mapping"]["Ay"], context["clipped_mask"])
@@ -879,16 +1172,12 @@ def save_problem2_free_design_gallery(geometry: Any, output_dir: Path) -> str:
         "Problem 2(a): free paper motifs can generate readable mirror cues, but directional symbols remain a limitation",
         fontsize=15,
     )
-    fig.text(
-        0.5,
-        0.01,
+    add_figure_note(
+        fig,
         "The previous 180° symmetry metric was replaced with bilateral symmetry, which better matches cylindrical mirror appearance; the arrow case is now labeled as a limitation rather than a success.",
-        ha="center",
-        va="bottom",
-        fontsize=10,
     )
     output_path = output_dir / "q2_free_design_gallery.png"
-    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    fig.savefig(output_path, dpi=220, bbox_inches="tight", pad_inches=0.3)
     plt.close(fig)
     return output_path.name
 
@@ -933,16 +1222,12 @@ def save_problem2_specified_gallery(geometry: Any, output_dir: Path) -> str:
         "Problem 2(b): specified mirror targets lead to structured paper prints; round-trip metrics are shown only as a secondary model check",
         fontsize=15,
     )
-    fig.text(
-        0.5,
-        0.01,
+    add_figure_note(
+        fig,
         "The cue zoom highlights paper-side structure directly, so the figure no longer relies on same-pipeline SSIM/PSNR as its main evidence.",
-        ha="center",
-        va="bottom",
-        fontsize=10,
     )
     output_path = output_dir / "q2_specified_mirror_gallery.png"
-    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    fig.savefig(output_path, dpi=220, bbox_inches="tight", pad_inches=0.3)
     plt.close(fig)
     return output_path.name
 
@@ -1032,13 +1317,9 @@ def save_problem3_phase_diagram(pair_results: list[dict[str, Any]], output_dir: 
             bbox={"boxstyle": "round,pad=0.2", "facecolor": "white", "edgecolor": "none", "alpha": 0.8},
         )
 
-    fig.text(
-        0.5,
-        0.01,
+    add_figure_note(
+        fig,
         "C = 0.25×mirror match + 0.25×low-frequency alignment + 0.25×symmetry alignment + 0.25×complexity alignment; classes use honest overlap labels: High ≥ 0.74, Mixed 0.68–0.74, Low < 0.68.",
-        ha="center",
-        va="bottom",
-        fontsize=10,
     )
 
     output_path = output_dir / "q3_compatibility_phase_diagram.png"
@@ -1084,15 +1365,11 @@ def save_problem3_pairwise_heatmap(pair_results: list[dict[str, Any]], output_di
     )
     fig.colorbar(heatmap, ax=ax, fraction=0.046, pad=0.04, label="Compatibility index C")
     legend_handles = [Rectangle((0, 0), 1, 1, fill=False, edgecolor=CLASS_STYLES[name]["color"], linewidth=2.0) for name in CLASS_STYLES]
-    ax.legend(legend_handles, list(CLASS_STYLES.keys()), loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False)
+    ax.legend(legend_handles, list(CLASS_STYLES.keys()), loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=3, frameon=False)
     add_panel_badge(ax, "same overlap thresholds", facecolor=DESIGN_SYSTEM["ink"])
-    fig.text(
-        0.5,
-        0.01,
+    add_figure_note(
+        fig,
         "Cell colors show the numeric score; border colors show the overlap class under the same 0.74 / 0.68 thresholds used in the phase map.",
-        ha="center",
-        va="bottom",
-        fontsize=10,
     )
 
     output_path = output_dir / "q3_pairwise_compatibility_heatmap.png"
@@ -1157,7 +1434,7 @@ def save_problem3_example_gallery(pair_results: list[dict[str, Any]], geometry: 
     fig.suptitle("Problem 3: representative pairs now use computed overlap classes instead of hardcoded labels", fontsize=15)
 
     output_path = output_dir / "q3_compatibility_examples.png"
-    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    fig.savefig(output_path, dpi=220, bbox_inches="tight", pad_inches=0.3)
     plt.close(fig)
     return output_path.name
 
@@ -1236,7 +1513,7 @@ def save_geometry_schematic(report: dict[str, Any], geometry: Any, contexts: lis
     ax_top.text(x_virtual + 2.0, geometry.y_img + 5.0, "I")
     ax_top.text(x_hit + 2.0, y_hit + 5.0, "H")
     ax_top.text(x_paper + 2.0, y_paper + 5.0, "A")
-    style_panel(ax_top, title="Top view: page footprint, cylinder, virtual plane, and one reflection chain", xlabel="x / mm", ylabel="y / mm", equal=True, grid=True)
+    style_panel(ax_top, title="Top view: page footprint, cylinder, virtual plane", xlabel="x / mm", ylabel="y / mm", equal=True, grid=True)
     add_panel_badge(ax_top, "A", facecolor=DESIGN_SYSTEM["ink"])
     ax_top.set_xlim(GP.PAGE_X_MIN - 10.0, GP.PAGE_X_MAX + 10.0)
     ax_top.set_ylim(min(GP.PAGE_Y_MIN, geometry.yv) - 20.0, GP.PAGE_Y_MAX + 15.0)
@@ -1265,7 +1542,7 @@ def save_geometry_schematic(report: dict[str, Any], geometry: Any, contexts: lis
     ax_side.text(y_paper_side + 3.0, 4.0, "A")
     ax_side.annotate(f"R = {geometry.R:.1f} mm", xy=(geometry.y0 + geometry.R, geometry.H * 0.75), xytext=(geometry.y0 + geometry.R + 15.0, geometry.H * 0.82), arrowprops={"arrowstyle": "->", "linewidth": 1.0})
     ax_side.annotate(f"H = {geometry.H:.0f} mm", xy=(geometry.y0 + geometry.R + 2.0, geometry.H), xytext=(geometry.y0 + geometry.R + 18.0, geometry.H - 10.0), arrowprops={"arrowstyle": "->", "linewidth": 1.0})
-    style_panel(ax_side, title="Side view: reflection from virtual image plane to printed paper", xlabel="y / mm", ylabel="z / mm", grid=True)
+    style_panel(ax_side, title="Side view: reflection from virtual image plane to paper", xlabel="y / mm", ylabel="z / mm", grid=True)
     add_panel_badge(ax_side, "B", facecolor=DESIGN_SYSTEM["ink"])
     ax_side.set_xlim(min(geometry.yv, GP.PAGE_Y_MIN) - 20.0, GP.PAGE_Y_MAX + 20.0)
     ax_side.set_ylim(-10.0, max(geometry.H, geometry.zv) + 20.0)
@@ -1633,6 +1910,410 @@ def draw_scene_observer(ax: plt.Axes, geometry: Any, *, ipd_mm: float = DEFAULT_
     ax.scatter([left_eye[0], right_eye[0]], [left_eye[1], right_eye[1]], s=16, color=DESIGN_SYSTEM["viewer"], zorder=4.3)
 
 
+def draw_scene_ground_circle(
+    ax: plt.Axes,
+    center_x: float,
+    center_y: float,
+    radius: float,
+    *,
+    z: float = 0.0,
+    facecolor: str | None = None,
+    edgecolor: str,
+    linewidth: float = 1.2,
+    linestyle: str = "-",
+    alpha: float = 1.0,
+    zorder: float = 1.0,
+) -> FloatArray:
+    theta = np.linspace(0.0, 2.0 * np.pi, 240, dtype=np.float64)
+    circle = np.column_stack(
+        [
+            center_x + radius * np.cos(theta),
+            center_y + radius * np.sin(theta),
+            np.full_like(theta, z),
+        ]
+    )
+    projected = scene_project(circle)
+    if facecolor is not None and facecolor != "none":
+        ax.add_patch(
+            Polygon(
+                projected,
+                closed=True,
+                facecolor=facecolor,
+                edgecolor=edgecolor,
+                linewidth=linewidth,
+                linestyle=linestyle,
+                alpha=alpha,
+                zorder=zorder,
+            )
+        )
+    else:
+        ax.plot(projected[:, 0], projected[:, 1], color=edgecolor, linewidth=linewidth, linestyle=linestyle, alpha=alpha, zorder=zorder)
+    return projected
+
+
+def add_problem1_chain_box(
+    ax: plt.Axes,
+    center: tuple[float, float],
+    title: str,
+    subtitle: str,
+    *,
+    facecolor: str,
+    edgecolor: str,
+) -> None:
+    width = 0.23
+    height = 0.20
+    x0 = center[0] - width / 2.0
+    y0 = center[1] - height / 2.0
+    ax.add_patch(
+        FancyBboxPatch(
+            (x0, y0),
+            width,
+            height,
+            boxstyle="round,pad=0.02,rounding_size=0.03",
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            linewidth=1.25,
+            alpha=0.98,
+        )
+    )
+    ax.text(center[0], center[1] + 0.03, title, ha="center", va="center", fontsize=10.0, fontweight="semibold", color=DESIGN_SYSTEM["ink"])
+    ax.text(center[0], center[1] - 0.045, subtitle, ha="center", va="center", fontsize=8.9, color=DESIGN_SYSTEM["muted"])
+
+
+def save_problem1_inverse_reflection_chain(geometry: Any, contexts: list[dict[str, Any]], output_dir: Path) -> str:
+    context = representative_context(contexts)
+    mapping = context["mapping"]
+    mask = context["clipped_mask"]
+    samples = build_problem1_chain_samples(context, sample_count=5)
+    primary = samples[len(samples) // 2]
+    paper_x, paper_y = downsample_paper_hits(mapping, mask)
+    bbox = {
+        "x_min": float(np.min(mapping["Ax"][mask])),
+        "x_max": float(np.max(mapping["Ax"][mask])),
+        "y_min": float(np.min(mapping["Ay"][mask])),
+        "y_max": float(np.max(mapping["Ay"][mask])),
+    }
+    bbox["width"] = bbox["x_max"] - bbox["x_min"]
+    bbox["height"] = bbox["y_max"] - bbox["y_min"]
+
+    fig = plt.figure(figsize=(15.8, 8.9), constrained_layout=True)
+    grid = fig.add_gridspec(2, 2, width_ratios=[1.78, 1.0], height_ratios=[0.9, 1.18])
+    ax_scene = fig.add_subplot(grid[:, 0])
+    ax_chain = fig.add_subplot(grid[0, 1])
+    ax_top = fig.add_subplot(grid[1, 1])
+
+    ax_scene.set_facecolor(DESIGN_SYSTEM["figure_face"])
+    x_grid = np.arange(-120.0, 121.0, 30.0)
+    y_grid = np.arange(-240.0, 161.0, 40.0)
+    for x_value in x_grid:
+        line = scene_project(np.array([[x_value, float(y_grid[0]), 0.0], [x_value, float(y_grid[-1]), 0.0]], dtype=np.float64))
+        ax_scene.plot(line[:, 0], line[:, 1], color=DESIGN_SYSTEM["grid"], linewidth=0.8, alpha=0.42, zorder=0.4)
+    for y_value in y_grid:
+        line = scene_project(np.array([[float(x_grid[0]), y_value, 0.0], [float(x_grid[-1]), y_value, 0.0]], dtype=np.float64))
+        ax_scene.plot(line[:, 0], line[:, 1], color=DESIGN_SYSTEM["grid"], linewidth=0.8, alpha=0.42, zorder=0.4)
+
+    page_corners = np.array(
+        [
+            [GP.PAGE_X_MIN, GP.PAGE_Y_MIN, 0.0],
+            [GP.PAGE_X_MAX, GP.PAGE_Y_MIN, 0.0],
+            [GP.PAGE_X_MAX, GP.PAGE_Y_MAX, 0.0],
+            [GP.PAGE_X_MIN, GP.PAGE_Y_MAX, 0.0],
+        ],
+        dtype=np.float64,
+    )
+    page_outline = scene_project(page_corners)
+    ax_scene.add_patch(Polygon(page_outline + np.array([10.0, -8.0]), closed=True, facecolor=DESIGN_SYSTEM["paper_shadow"], edgecolor="none", alpha=0.16, zorder=0.7))
+    ax_scene.add_patch(Polygon(page_outline, closed=True, facecolor="#fffcf7", edgecolor=DESIGN_SYSTEM["page_edge"], linewidth=1.5, zorder=0.95))
+    add_projected_image(
+        ax_scene,
+        build_occupancy_overlay(context["occupancy"]),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MAX, GP.PAGE_Y_MIN, 0.0),
+        (GP.PAGE_X_MIN, GP.PAGE_Y_MAX, 0.0),
+        zorder=1.1,
+        alpha=0.96,
+    )
+    draw_scene_ground_circle(
+        ax_scene,
+        geometry.x0,
+        geometry.y0,
+        geometry.R + geometry.cylinder_clearance_mm,
+        facecolor=DESIGN_SYSTEM["ray_soft"],
+        edgecolor=DESIGN_SYSTEM["warning"],
+        linewidth=1.1,
+        linestyle="--",
+        alpha=0.38,
+        zorder=1.22,
+    )
+    draw_scene_ground_circle(
+        ax_scene,
+        geometry.x0,
+        geometry.y0,
+        geometry.R,
+        edgecolor=DESIGN_SYSTEM["cylinder"],
+        linewidth=1.25,
+        alpha=0.64,
+        zorder=1.28,
+    )
+
+    plane_half_width = context["plane_width_mm"] / 2.0
+    plane_half_height = context["plane_height_mm"] / 2.0
+    plane_lower_left = (geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height)
+    plane_lower_right = (geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height)
+    plane_upper_left = (geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height)
+    plane_outline = scene_project(
+        np.array(
+            [
+                [geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height],
+                [geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center - plane_half_height],
+                [geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height],
+                [geometry.x0 - plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height],
+            ],
+            dtype=np.float64,
+        )
+    )
+    ax_scene.add_patch(Polygon(plane_outline, closed=True, facecolor=DESIGN_SYSTEM["virtual_plane_soft"], edgecolor="none", alpha=0.18, zorder=3.05))
+    add_projected_image(ax_scene, context["spec"]["image_array"], plane_lower_left, plane_lower_right, plane_upper_left, zorder=3.22, alpha=0.96)
+    ax_scene.add_patch(Polygon(plane_outline, closed=True, fill=False, edgecolor=DESIGN_SYSTEM["virtual_plane"], linewidth=1.55, zorder=3.38))
+
+    draw_scene_cylinder(ax_scene, geometry)
+    draw_scene_observer(ax_scene, geometry, ipd_mm=0.0)
+
+    viewer_pt = scene_project(np.array([geometry.xv, geometry.yv, geometry.zv], dtype=np.float64))
+    sample_bound_points = [viewer_pt]
+    for sample in samples:
+        idx = int(sample["index"])
+        virtual_pt = scene_project(np.array([sample["X"], geometry.y_img, sample["Z"]], dtype=np.float64))
+        hit_pt = scene_project(np.array([sample["Hx"], sample["Hy"], sample["Hz"]], dtype=np.float64))
+        paper_pt = scene_project(np.array([sample["Ax"], sample["Ay"], 0.0], dtype=np.float64))
+        sample_bound_points.extend([virtual_pt, hit_pt, paper_pt])
+        is_primary = idx == int(primary["index"])
+        alpha = 0.96 if is_primary else 0.48
+        width_img = 2.05 if is_primary else 1.15
+        width_paper = 2.20 if is_primary else 1.25
+        ax_scene.plot([virtual_pt[0], hit_pt[0]], [virtual_pt[1], hit_pt[1]], color=DESIGN_SYSTEM["virtual_plane"], linewidth=width_img, alpha=alpha, zorder=4.25)
+        ax_scene.plot([hit_pt[0], paper_pt[0]], [hit_pt[1], paper_pt[1]], color=DESIGN_SYSTEM["ray"], linewidth=width_paper, alpha=alpha, zorder=4.3)
+        ax_scene.scatter([virtual_pt[0]], [virtual_pt[1]], s=24 if is_primary else 16, color=DESIGN_SYSTEM["virtual_plane"], edgecolors="white", linewidths=0.55, zorder=4.5)
+        ax_scene.scatter([hit_pt[0]], [hit_pt[1]], s=26 if is_primary else 18, color=DESIGN_SYSTEM["cylinder"], edgecolors="white", linewidths=0.55, zorder=4.6)
+        ax_scene.scatter([paper_pt[0]], [paper_pt[1]], s=26 if is_primary else 18, color=DESIGN_SYSTEM["ink"], edgecolors="white", linewidths=0.55, zorder=4.55)
+        ax_scene.text(virtual_pt[0] + 3.0, virtual_pt[1] + 4.0, str(idx), fontsize=8.6, color=DESIGN_SYSTEM["muted"], zorder=4.7)
+        if is_primary:
+            ax_scene.plot([viewer_pt[0], hit_pt[0]], [viewer_pt[1], hit_pt[1]], linestyle="--", linewidth=1.55, color=DESIGN_SYSTEM["viewer"], alpha=0.92, zorder=4.05)
+            ax_scene.annotate(r"$P_{img}$", xy=(float(virtual_pt[0]), float(virtual_pt[1])), xytext=(float(virtual_pt[0] + 22.0), float(virtual_pt[1] + 30.0)), fontsize=10.0, color=DESIGN_SYSTEM["virtual_plane"], arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["virtual_plane"]}, zorder=5.0)
+            ax_scene.annotate(r"$P_{cyl}$", xy=(float(hit_pt[0]), float(hit_pt[1])), xytext=(float(hit_pt[0] - 64.0), float(hit_pt[1] + 26.0)), fontsize=10.0, color=DESIGN_SYSTEM["cylinder"], arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["cylinder"]}, zorder=5.0)
+            ax_scene.annotate(r"$P_{paper}$", xy=(float(paper_pt[0]), float(paper_pt[1])), xytext=(float(paper_pt[0] - 22.0), float(paper_pt[1] - 34.0)), fontsize=10.0, color=DESIGN_SYSTEM["ink"], arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["ink"]}, zorder=5.0)
+
+    plane_anchor = scene_project(np.array([geometry.x0 + plane_half_width, geometry.y_img, geometry.z_img_center + plane_half_height], dtype=np.float64))
+    cylinder_anchor = scene_project(np.array([geometry.x0 + geometry.R, geometry.y0, geometry.H * 0.78], dtype=np.float64))
+    observer_anchor = scene_project(np.array([geometry.xv, geometry.yv, geometry.zv + 18.0], dtype=np.float64))
+    safety_anchor = scene_project(np.array([geometry.x0 + geometry.R + geometry.cylinder_clearance_mm, geometry.y0, 0.0], dtype=np.float64))
+    paper_anchor = scene_project(np.array([0.5 * (bbox["x_min"] + bbox["x_max"]), bbox["y_min"] + 22.0, 0.0], dtype=np.float64))
+    ax_scene.annotate(
+        f"Virtual image plane $\\Pi_v$\n{context['spec']['name']} context: {context['plane_width_mm']:.1f} × {context['plane_height_mm']:.1f} mm",
+        xy=(float(plane_anchor[0]), float(plane_anchor[1])),
+        xytext=(plane_anchor[0] + 62.0, plane_anchor[1] + 44.0),
+        fontsize=9.9,
+        color=DESIGN_SYSTEM["virtual_plane"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["virtual_plane"]},
+        zorder=5.2,
+    )
+    ax_scene.annotate(
+        "Cylinder mirror",
+        xy=(float(cylinder_anchor[0]), float(cylinder_anchor[1])),
+        xytext=(cylinder_anchor[0] + 54.0, cylinder_anchor[1] + 10.0),
+        fontsize=10.0,
+        color=DESIGN_SYSTEM["cylinder"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["cylinder"]},
+        zorder=5.2,
+    )
+    ax_scene.annotate(
+        "Observer V",
+        xy=(float(observer_anchor[0]), float(observer_anchor[1])),
+        xytext=(observer_anchor[0] - 92.0, observer_anchor[1] + 28.0),
+        fontsize=10.0,
+        color=DESIGN_SYSTEM["viewer"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["viewer"]},
+        zorder=5.2,
+    )
+    ax_scene.annotate(
+        rf"Safety gap $\delta={geometry.cylinder_clearance_mm:.0f}$ mm",
+        xy=(float(safety_anchor[0]), float(safety_anchor[1])),
+        xytext=(safety_anchor[0] + 34.0, safety_anchor[1] - 42.0),
+        fontsize=9.7,
+        color=DESIGN_SYSTEM["warning"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["warning"]},
+        zorder=5.2,
+    )
+    ax_scene.annotate(
+        "A4-clipped valid $P_{paper}$ footprint",
+        xy=(float(paper_anchor[0]), float(paper_anchor[1])),
+        xytext=(paper_anchor[0] + 48.0, paper_anchor[1] - 34.0),
+        fontsize=9.7,
+        color=DESIGN_SYSTEM["page_edge"],
+        arrowprops={"arrowstyle": "->", "linewidth": 1.0, "color": DESIGN_SYSTEM["page_edge"]},
+        zorder=5.2,
+    )
+    ax_scene.text(
+        0.02,
+        0.91,
+        f"Selected geometry uses the report optimum\n"
+        f"V=({geometry.xv:.0f}, {geometry.yv:.0f}, {geometry.zv:.0f}) mm, y_img={geometry.y_img:.0f} mm\n"
+        f"sampled chains 1–5 come from one dense valid row of the actual inverse map",
+        transform=ax_scene.transAxes,
+        ha="left",
+        va="top",
+        fontsize=9.2,
+        color=DESIGN_SYSTEM["ink"],
+        bbox={"boxstyle": "round,pad=0.34", "facecolor": DESIGN_SYSTEM["panel_face"], "edgecolor": DESIGN_SYSTEM["panel_edge"]},
+        zorder=5.3,
+    )
+    ax_scene.set_title("Panel A — oblique overview of the inverse reflection chain", loc="left", pad=12.0, fontsize=12.4, fontweight="semibold", color=DESIGN_SYSTEM["ink"])
+    add_panel_badge(ax_scene, "A", facecolor=DESIGN_SYSTEM["ink"])
+    ax_scene.axis("off")
+    bound_points = np.vstack(
+        [
+            page_outline,
+            plane_outline,
+            scene_project(np.array([[geometry.x0 + geometry.R + geometry.cylinder_clearance_mm, geometry.y0, 0.0]], dtype=np.float64)),
+            scene_project(np.array([[geometry.x0 + geometry.R, geometry.y0, geometry.H]], dtype=np.float64)),
+            np.vstack(sample_bound_points),
+        ]
+    )
+    ax_scene.set_xlim(float(np.min(bound_points[:, 0]) - 62.0), float(np.max(bound_points[:, 0]) + 90.0))
+    ax_scene.set_ylim(float(np.min(bound_points[:, 1]) - 48.0), float(np.max(bound_points[:, 1]) + 54.0))
+
+    ax_chain.set_xlim(0.0, 1.0)
+    ax_chain.set_ylim(0.0, 1.0)
+    style_panel(ax_chain, title="Panel B — Problem 1 chain equations and validity checks", hide_ticks=True)
+    add_panel_badge(ax_chain, "B", facecolor=DESIGN_SYSTEM["ink"])
+    add_problem1_chain_box(
+        ax_chain,
+        (0.18, 0.72),
+        r"$P_{img}$",
+        r"on $\Pi_v:y=y_{img}$",
+        facecolor=DESIGN_SYSTEM["virtual_plane_soft"],
+        edgecolor=DESIGN_SYSTEM["virtual_plane"],
+    )
+    add_problem1_chain_box(
+        ax_chain,
+        (0.50, 0.72),
+        r"$P_{cyl}$",
+        r"cylinder hit + normal $\mathbf{n}$",
+        facecolor=DESIGN_SYSTEM["cylinder_soft"],
+        edgecolor=DESIGN_SYSTEM["cylinder"],
+    )
+    add_problem1_chain_box(
+        ax_chain,
+        (0.82, 0.72),
+        r"$P_{paper}$",
+        r"solve intersection with $z=0$",
+        facecolor=DESIGN_SYSTEM["neutral_fill"],
+        edgecolor=DESIGN_SYSTEM["page_edge"],
+    )
+    ax_chain.add_patch(FancyArrowPatch((0.30, 0.72), (0.38, 0.72), arrowstyle="->", mutation_scale=13, linewidth=1.4, color=DESIGN_SYSTEM["ink"]))
+    ax_chain.add_patch(FancyArrowPatch((0.62, 0.72), (0.70, 0.72), arrowstyle="->", mutation_scale=13, linewidth=1.4, color=DESIGN_SYSTEM["ink"]))
+    ax_chain.text(0.34, 0.83, r"$L(t)=V+t(P_{img}-V)$", ha="center", va="center", fontsize=8.4, color=DESIGN_SYSTEM["ink"])
+    ax_chain.text(0.66, 0.83, r"$\mathbf{d}_{in}=\mathbf{d}_{out}-2(\mathbf{d}_{out}\!\cdot\!\mathbf{n})\mathbf{n}$", ha="center", va="center", fontsize=8.0, color=DESIGN_SYSTEM["ink"])
+    ax_chain.add_patch(
+        FancyBboxPatch(
+            (0.07, 0.11),
+            0.86,
+            0.36,
+            boxstyle="round,pad=0.03,rounding_size=0.03",
+            facecolor=DESIGN_SYSTEM["panel_face"],
+            edgecolor=DESIGN_SYSTEM["panel_edge"],
+            linewidth=1.1,
+        )
+    )
+    ax_chain.text(0.10, 0.42, "Constraints carried directly from the Problem 1 derivation", ha="left", va="center", fontsize=9.4, fontweight="semibold", color=DESIGN_SYSTEM["ink"])
+    ax_chain.text(
+        0.10,
+        0.31,
+        f"$\\theta=(x_0,y_0,R,H,x_v,y_v,z_v,y_{{img}},z_{{center}})$ = "
+        f"({geometry.x0:.0f}, {geometry.y0:.0f}, {geometry.R:.0f}, {geometry.H:.0f}, "
+        f"{geometry.xv:.0f}, {geometry.yv:.0f}, {geometry.zv:.0f}, {geometry.y_img:.0f}, {geometry.z_img_center:.0f}) mm\n"
+        "$0 \\leq z_c \\leq H$,  A4: $-105 \\leq x_p \\leq 105$, $-148.5 \\leq y_p \\leq 148.5$\n"
+        f"$(x_p-x_0)^2 + (y_p-y_0)^2 \\geq (R+\\delta)^2$, with $R={geometry.R:.0f}$ mm and $\\delta={geometry.cylinder_clearance_mm:.0f}$ mm",
+        ha="left",
+        va="top",
+        fontsize=8.85,
+        color=DESIGN_SYSTEM["ink"],
+        linespacing=1.34,
+    )
+
+    draw_page_outline(ax_top, geometry, fill=True, alpha=0.82)
+    ax_top.add_patch(
+        Circle(
+            (geometry.x0, geometry.y0),
+            geometry.R + geometry.cylinder_clearance_mm,
+            fill=True,
+            facecolor=DESIGN_SYSTEM["ray_soft"],
+            edgecolor=DESIGN_SYSTEM["warning"],
+            linewidth=1.2,
+            linestyle="--",
+            alpha=0.45,
+            zorder=1.2,
+        )
+    )
+    ax_top.scatter(paper_x, paper_y, s=8, color=DESIGN_SYSTEM["ray"], alpha=0.16, linewidths=0.0, zorder=2.0)
+    ax_top.add_patch(
+        Rectangle(
+            (bbox["x_min"], bbox["y_min"]),
+            bbox["width"],
+            bbox["height"],
+            fill=False,
+            edgecolor=DESIGN_SYSTEM["virtual_plane"],
+            linewidth=1.2,
+            linestyle="--",
+            zorder=2.6,
+        )
+    )
+    for sample in samples:
+        ax_top.scatter(sample["Ax"], sample["Ay"], s=40, color=DESIGN_SYSTEM["ink"], edgecolors="white", linewidths=0.8, zorder=3.3)
+        ax_top.text(sample["Ax"] + 2.0, sample["Ay"] + 3.0, str(int(sample["index"])), fontsize=8.2, color=DESIGN_SYSTEM["muted"], zorder=3.4)
+    style_panel(
+        ax_top,
+        title="Panel C — A4 footprint after clipping the inverse map and clearance zone",
+        xlabel="x / mm",
+        ylabel="y / mm",
+        equal=True,
+        grid=True,
+    )
+    add_panel_badge(ax_top, "C", facecolor=DESIGN_SYSTEM["ink"])
+    ax_top.legend(
+        [
+            Line2D([0], [0], marker="o", color="none", markerfacecolor=DESIGN_SYSTEM["ray"], markeredgecolor="none", markersize=7, alpha=0.45),
+            Line2D([0], [0], marker="o", color="none", markerfacecolor=DESIGN_SYSTEM["ink"], markeredgecolor="white", markersize=7),
+            Line2D([0], [0], color=DESIGN_SYSTEM["warning"], linestyle="--", linewidth=1.2),
+        ],
+        ["All valid $P_{paper}$ hits", "Sampled chains 1–5", r"blocked disk $R+\delta$"],
+        loc="lower left",
+    )
+    ax_top.text(
+        0.98,
+        0.96,
+        f"Representative context: {context['spec']['name']}\n"
+        f"valid virtual-plane fraction = {np.mean(mask):.1%}\n"
+        f"mapped extent ≈ {bbox['width']:.1f} × {bbox['height']:.1f} mm",
+        transform=ax_top.transAxes,
+        ha="right",
+        va="top",
+        fontsize=9.05,
+        color=DESIGN_SYSTEM["ink"],
+        bbox={"boxstyle": "round,pad=0.30", "facecolor": DESIGN_SYSTEM["panel_face"], "edgecolor": DESIGN_SYSTEM["panel_edge"]},
+    )
+    ax_top.set_xlim(GP.PAGE_X_MIN - 14.0, GP.PAGE_X_MAX + 14.0)
+    ax_top.set_ylim(GP.PAGE_Y_MIN - 18.0, GP.PAGE_Y_MAX + 18.0)
+
+    fig.suptitle(r"Problem 1 inverse reflection chain $P_{img}\rightarrow P_{cyl}\rightarrow P_{paper}$ under A4 and safety-gap constraints", fontsize=14.8, fontweight="semibold")
+    add_figure_note(
+        fig,
+        f"The dominant scene uses the selected report geometry together with the widest Problem-1 target context ({context['spec']['name']}: {context['plane_width_mm']:.1f} × {context['plane_height_mm']:.1f} mm). Gold overlays show the actual A4-clipped paper footprint from the inverse map, while the dashed clearance zone enforces the required {geometry.cylinder_clearance_mm:.0f} mm gap around the cylinder base.",
+    )
+    output_path = output_dir / "problem1_inverse_reflection_chain.png"
+    return save_figure(fig, output_path)
+
+
 def save_spatial_experiment_mockup(geometry: Any, mockup_example: dict[str, Any], output_dir: Path) -> str:
     virtual_context = build_virtual_plane_mapping(
         geometry,
@@ -1846,38 +2527,72 @@ def save_reconstruction_figures(contexts: list[dict[str, Any]], geometry: Any, o
     extent = [GP.PAGE_X_MIN, GP.PAGE_X_MAX, GP.PAGE_Y_MIN, GP.PAGE_Y_MAX]
     for context in contexts:
         spec = context["spec"]
-        fig, axes = plt.subplots(2, 2, figsize=(11, 9), constrained_layout=True)
+        fig, axes = plt.subplots(2, 2, figsize=(12.2, 9.4), constrained_layout=True, gridspec_kw={"height_ratios": [0.92, 1.08]})
 
         axes[0, 0].imshow(spec["image_array"])
-        axes[0, 0].set_title(f"{spec['name']} target image")
-        axes[0, 0].axis("off")
+        style_panel(axes[0, 0], title="Panel A — target image", equal=True, hide_ticks=True)
+        add_panel_badge(axes[0, 0], "A", facecolor=DESIGN_SYSTEM["ink"])
 
-        axes[0, 1].imshow(np.flipud(context["paper_pattern"]), extent=extent, origin="lower")
-        axes[0, 1].add_patch(Rectangle((GP.PAGE_X_MIN, GP.PAGE_Y_MIN), GP.A4_WIDTH_MM, GP.A4_HEIGHT_MM, fill=False, edgecolor="black", linewidth=1.0))
-        axes[0, 1].add_patch(Circle((geometry.x0, geometry.y0), geometry.R, fill=False, edgecolor="firebrick", linewidth=1.2))
-        axes[0, 1].set_title("Generated paper pattern")
-        axes[0, 1].set_xlabel("x / mm")
-        axes[0, 1].set_ylabel("y / mm")
-        axes[0, 1].set_aspect("equal")
-
-        axes[1, 0].imshow(np.clip(context["reconstructed"], 0.0, 1.0))
-        axes[1, 0].set_title(
-            "Model-based mirror reconstruction\n"
-            f"RMSE={context['metrics']['rmse']:.4f}, PSNR={context['metrics']['psnr_db']:.2f} dB"
+        axes[0, 1].imshow(np.flipud(np.clip(context["paper_pattern"], 0.0, 1.0)), extent=extent, origin="lower")
+        draw_page_outline(axes[0, 1], geometry, fill=False)
+        style_panel(axes[0, 1], title="Panel B — generated paper pattern", xlabel="x / mm", ylabel="y / mm", equal=True, grid=False)
+        add_panel_badge(axes[0, 1], "B", facecolor=DESIGN_SYSTEM["ink"])
+        axes[0, 1].text(
+            0.02,
+            0.04,
+            f"virtual plane = {context['plane_width_mm']:.1f} × {context['plane_height_mm']:.1f} mm",
+            transform=axes[0, 1].transAxes,
+            ha="left",
+            va="bottom",
+            fontsize=8.8,
+            color=DESIGN_SYSTEM["muted"],
+            bbox={"boxstyle": "round,pad=0.25", "facecolor": DESIGN_SYSTEM["panel_face"], "edgecolor": DESIGN_SYSTEM["panel_edge"], "alpha": 0.92},
         )
-        axes[1, 0].axis("off")
 
-        err = axes[1, 1].imshow(context["error_map"], cmap="magma", vmin=0.0, vmax=max(0.10, float(np.nanpercentile(context["error_map"], 99))))
-        axes[1, 1].set_title(
-            "Absolute RGB error map\n"
-            f"SSIM={context['metrics']['global_ssim']:.4f}, corr={context['metrics']['mean_channel_correlation']:.4f}"
+        draw_reconstruction_process_scene(axes[1, 0], context, geometry)
+
+        error_visual, error_norm, error_stats = build_reconstruction_error_visual(spec["image_array"], context["error_map"], context["sample_mask"])
+        axes[1, 1].imshow(np.flipud(error_visual), origin="lower", interpolation="bilinear")
+        reference_gray = grayscale_image(spec["image_array"])
+        if float(np.max(reference_gray) - np.min(reference_gray)) > 1.0e-3:
+            axes[1, 1].contour(np.flipud(reference_gray), levels=[0.55], colors=[DESIGN_SYSTEM["error_contour"]], linewidths=0.75, alpha=0.48)
+        if 0.0 < float(np.mean(context["sample_mask"])) < 1.0:
+            axes[1, 1].contour(np.flipud(context["sample_mask"].astype(np.float64)), levels=[0.5], colors=[DESIGN_SYSTEM["panel_edge"]], linewidths=0.8, alpha=0.85)
+        style_panel(
+            axes[1, 1],
+            title=(
+                "Panel D — absolute RGB error with readable warm scaling\n"
+                f"SSIM = {context['metrics']['global_ssim']:.4f}, corr = {context['metrics']['mean_channel_correlation']:.4f}"
+            ),
+            equal=True,
+            hide_ticks=True,
         )
-        axes[1, 1].axis("off")
-        fig.colorbar(err, ax=axes[1, 1], fraction=0.046, pad=0.04)
+        add_panel_badge(axes[1, 1], "D", facecolor=DESIGN_SYSTEM["ink"])
+        axes[1, 1].text(
+            0.02,
+            0.04,
+            f"q95 = {error_stats['p95']:.4f}, q99.5 = {error_stats['p995']:.4f}\nvalid support = {context['metrics']['valid_fraction']:.1%}",
+            transform=axes[1, 1].transAxes,
+            ha="left",
+            va="bottom",
+            fontsize=8.75,
+            color=DESIGN_SYSTEM["ink"],
+            bbox={"boxstyle": "round,pad=0.26", "facecolor": DESIGN_SYSTEM["panel_face"], "edgecolor": DESIGN_SYSTEM["panel_edge"], "alpha": 0.94},
+        )
+        colorbar = fig.colorbar(ScalarMappable(norm=error_norm, cmap=RECONSTRUCTION_ERROR_CMAP), ax=axes[1, 1], fraction=0.046, pad=0.03)
+        colorbar.set_label("mean absolute RGB error", color=DESIGN_SYSTEM["ink"])
+        for spine in colorbar.ax.spines.values():
+            spine.set_edgecolor(DESIGN_SYSTEM["panel_edge"])
+        colorbar.ax.tick_params(colors=DESIGN_SYSTEM["muted"], labelsize=8.8)
+
+        fig.suptitle(f"{spec['name']} reconstruction comparison", fontsize=14.4, fontweight="semibold")
+        add_figure_note(
+            fig,
+            "Top row keeps the direct target/paper comparison. The oblique reconstruction scene restates the actual printed-paper → cylinder → observer → virtual-image chain, and the error panel uses percentile-scaled warm tones plus the target silhouette so low-error structure stays legible.",
+        )
 
         output_path = output_dir / f"{spec['name']}_mirror_reconstruction_comparison.png"
-        fig.savefig(output_path, dpi=180)
-        plt.close(fig)
+        save_figure(fig, output_path)
         created.append(output_path.name)
     return created
 
@@ -1891,16 +2606,20 @@ def save_candidate_tradeoff_figure(report: dict[str, Any], output_dir: Path) -> 
     fig3_fractions = [float(item["jobs"]["fig3"]["paper_fraction"]) for item in candidates]
     fig4_fractions = [float(item["jobs"]["fig4"]["paper_fraction"]) for item in candidates]
 
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5), constrained_layout=True)
+    fig, axes = plt.subplots(1, 2, figsize=(13, 6.2), constrained_layout=True)
     bubble_sizes = [900.0 * fraction for fraction in mean_paper_fractions]
     scatter = axes[0].scatter(mean_conditions, total_scores, s=bubble_sizes, c=mean_paper_fractions, cmap="viridis", alpha=0.8, edgecolors="black")
+    # Custom offsets to prevent label overlap for clustered points
+    # #4 (right bubble): label above
+    # #5 (left bubble): label below
+    label_offsets = [(0, -25), (10, 15), (10, 15), (0, 15), (-70, 25)]
     for idx, label in enumerate(labels):
         geometry = candidates[idx]["geometry"]
         axes[0].annotate(
             f"{label}\nR={geometry['R']:.0f}, yv={geometry['yv']:.0f}, zv={geometry['zv']:.0f}",
             (mean_conditions[idx], total_scores[idx]),
             textcoords="offset points",
-            xytext=(6, 6),
+            xytext=label_offsets[idx],
             fontsize=9,
         )
     axes[0].set_xlabel("Mean median condition number")
@@ -1919,9 +2638,7 @@ def save_candidate_tradeoff_figure(report: dict[str, Any], output_dir: Path) -> 
     axes[1].legend()
 
     output_path = output_dir / "candidate_tradeoff_comparison.png"
-    fig.savefig(output_path, dpi=180)
-    plt.close(fig)
-    return output_path.name
+    return save_figure(fig, output_path, dpi=180)
 
 
 def evaluate_geometry_against_jobs(job_specs: list[dict[str, Any]], geometry: Any) -> dict[str, Any]:
@@ -2120,6 +2837,7 @@ def main() -> None:
     created_files: list[str] = []
     created_files.extend(save_target_figures(contexts, output_dir))
     created_files.append(save_geometry_schematic(report, geometry, contexts, output_dir))
+    created_files.append(save_problem1_inverse_reflection_chain(geometry, contexts, output_dir))
     created_files.append(save_workflow_flowchart(output_dir))
     binocular_data = build_binocular_view_data(geometry, contexts)
     binocular_zone = compute_binocular_view_zone(geometry, representative_context(contexts))

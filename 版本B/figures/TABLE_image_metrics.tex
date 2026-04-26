@@ -1,0 +1,14 @@
+\begin{table}[H]
+\centering
+\caption{图像质量评价指标对比}\label{tab:image_metrics}
+\begin{tabular}{lcccc}
+\toprule
+图像 & SSIM & PSNR (dB) & 雅可比CV & 边界惩罚\\
+\midrule
+图3 蒙娜丽莎 & $-0.236$ & $8.86$ & $0.572$ & $0.086$\\
+图4 卡通猫   & $0.198$  & $18.40$ & $0.569$ & $0.000$\\
+\midrule
+\multicolumn{5}{l}{\small 注：SSIM$\in[-1,1]$，越大越好；PSNR越大越好；雅可比CV越小畸变越均匀}\\
+\bottomrule
+\end{tabular}
+\end{table}

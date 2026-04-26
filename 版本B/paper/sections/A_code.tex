@@ -1,0 +1,98 @@
+\section{Python 核心代码}
+
+\subsection{逆映射核心函数}
+
+\begin{lstlisting}[language=Python,caption={圆柱镜反射逆映射函数}]
+import numpy as np
+from PIL import Image
+
+A4_W, A4_H = 210.0, 297.0
+
+def inverse_map(theta, h, R, x0, y0, phi, alpha):
+    """圆柱展开坐标 -> 纸面坐标"""
+    k = h * np.tan(alpha)
+    xp = x0 + R*np.cos(theta) - k*np.cos(phi)\\
+         + 2*k*np.cos(phi-theta)*np.cos(theta)
+    yp = y0 + R*np.sin(theta) - k*np.sin(phi)\\
+         + 2*k*np.cos(phi-theta)*np.sin(theta)
+    return xp, yp
+
+def generate_paper_pattern(mirror_img, R, x0, y0,
+                           H, phi, alpha,
+                           N_theta=400, N_h=300, dpi=10):
+    """逆映射生成纸面图案"""
+    pw, ph = int(A4_W*dpi), int(A4_H*dpi)
+    paper = np.ones((ph, pw, 3), dtype=np.float32)*255
+    mh, mw = mirror_img.shape[:2]
+    thetas = np.linspace(0, 2*np.pi, N_theta, endpoint=False)
+    hs = np.linspace(0, H, N_h)
+    TH, HH = np.meshgrid(thetas, hs)
+    xp, yp = inverse_map(TH, HH, R, x0, y0, phi, alpha)
+    mi = (TH/(2*np.pi)*mw).astype(int) % mw
+    mj = np.clip(((1-HH/H)*(mh-1)).astype(int), 0, mh-1)
+    pxi = (xp*dpi).astype(int)
+    pyi = (yp*dpi).astype(int)
+    mask = (pxi>=0)&(pxi<pw)&(pyi>=0)&(pyi<ph)
+    paper[pyi[mask], pxi[mask]] =\\
+        mirror_img[mj[mask], mi[mask], :3].astype(np.float32)
+    return paper.astype(np.uint8)
+\end{lstlisting}
+
+\subsection{正向仿真验证函数}
+
+\begin{lstlisting}[language=Python,caption={正向仿真与SSIM计算}]
+from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import peak_signal_noise_ratio as psnr
+
+def forward_simulate(paper_arr, R, x0, y0, H, phi, alpha,
+                     N_theta=400, N_h=300, dpi=10):
+    """正向映射：纸面图案 -> 仿真镜面图案"""
+    pw, ph = int(A4_W*dpi), int(A4_H*dpi)
+    thetas = np.linspace(0, 2*np.pi, N_theta, endpoint=False)
+    hs = np.linspace(0, H, N_h)
+    TH, HH = np.meshgrid(thetas, hs)
+    xp, yp = inverse_map(TH, HH, R, x0, y0, phi, alpha)
+    pxi = np.clip((xp*dpi).astype(int), 0, pw-1)
+    pyi = np.clip((yp*dpi).astype(int), 0, ph-1)
+    sim_img = paper_arr[pyi, pxi]
+    return sim_img
+
+def evaluate(sim_img, target_img):
+    """计算SSIM和PSNR"""
+    s = ssim(target_img, sim_img, channel_axis=2)
+    p = psnr(target_img, sim_img)
+    return s, p
+\end{lstlisting}
+
+\subsection{兼容性指标计算}
+
+\begin{lstlisting}[language=Python,caption={兼容性指标体系}]
+def spectral_compatibility(img1, img2):
+    """频谱兼容性"""
+    f1 = np.abs(np.fft.fft2(img1.mean(axis=2)))
+    f2 = np.abs(np.fft.fft2(img2.mean(axis=2)))
+    return np.sum(f1*f2) /\\
+           np.sqrt(np.sum(f1**2)*np.sum(f2**2) + 1e-10)
+
+def symmetry_score(img):
+    """旋转对称性指标"""
+    gray = img.mean(axis=2) if img.ndim==3 else img
+    scores = []
+    for angle in [90, 180, 270]:
+        rotated = np.rot90(gray, k=angle//90)
+        h, w = min(gray.shape[0], rotated.shape[0]),\\
+               min(gray.shape[1], rotated.shape[1])
+        s = ssim(gray[:h,:w], rotated[:h,:w])
+        scores.append(max(0, s))
+    return np.mean(scores)
+
+def compatibility(P_star, M_star, params):
+    """综合兼容性指标"""
+    inv_M = generate_paper_pattern(M_star, **params)
+    C_freq = spectral_compatibility(P_star, inv_M)
+    C_sym = 0.5*(symmetry_score(P_star)+symmetry_score(M_star))
+    C_tol = 0.5*(semantic_tolerance(P_star)
+                 +semantic_tolerance(M_star))
+    C_dir = direction_compatibility(P_star, M_star)
+    return 0.25*(C_freq + C_sym + C_tol + C_dir)
+\end{lstlisting}

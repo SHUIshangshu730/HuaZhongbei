@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T14:07:10",
+  "generated_at": "2026-04-25T21:36:13",
   "base_report": "/home/xianz/huazhongbei/outputs/cylindrical_anamorphosis/parameter_report.json",
   "selected_geometry": {
     "x0": 0.0,
@@ -1180,6 +1180,7 @@
     "fig4_target_image.png",
     "target_image_gallery.png",
     "geometry_schematic.png",
+    "problem1_inverse_reflection_chain.png",
     "algorithm_workflow_flowchart.png",
     "binocular_viewing_geometry.png",
     "binocular_viewing_zone.png",

@@ -12,13 +12,13 @@
 \contentsline {subsection}{\numberline {5.2}坐标系建立与圆柱面参数化}{6}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}反射映射的解析推导}{7}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}镜面可视区域的确定}{8}{subsection.5.4}%
-\contentsline {subsection}{\numberline {5.5}镜面图案到纸面图案的变换算法}{8}{subsection.5.5}%
-\contentsline {subsection}{\numberline {5.6}圆柱参数优化模型}{9}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.5}镜面图案到纸面图案的变换算法}{9}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}圆柱参数优化模型}{10}{subsection.5.6}%
 \contentsline {subsection}{\numberline {5.7}图3设计方案}{10}{subsection.5.7}%
-\contentsline {subsection}{\numberline {5.8}图4设计方案}{10}{subsection.5.8}%
+\contentsline {subsection}{\numberline {5.8}图4设计方案}{11}{subsection.5.8}%
 \contentsline {subsection}{\numberline {5.9}问题一结论}{11}{subsection.5.9}%
-\contentsline {section}{\numberline {六、}问题二的建模与求解}{11}{section.6}%
-\contentsline {subsection}{\numberline {6.1}从生成到语义：双有意义设计的证据框架}{11}{subsection.6.1}%
+\contentsline {section}{\numberline {六、}问题二的建模与求解}{12}{section.6}%
+\contentsline {subsection}{\numberline {6.1}从生成到语义：双有意义设计的证据框架}{12}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}双目观察几何与感知稳定性}{12}{subsection.6.2}%
 \contentsline {subsection}{\numberline {6.3}问题 2(a)：镜面图像未指定时的双有意义设计}{13}{subsection.6.3}%
 \contentsline {subsection}{\numberline {6.4}问题 2(b)：镜面图像指定时的纸面语义保持}{14}{subsection.6.4}%

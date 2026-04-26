@@ -271,7 +271,14 @@ P_{paper}=\mathcal{M}(P_{img};\theta),
 \item 纸面交点位于 A4 纸张边界内，且与圆柱底座保持安全间隙。
 \end{compactitem}
 
-\par 因此，赛题中的“可制作”区域并不是整个 A4 平面，而是由反射可达性、纸张边界和圆柱占位共同决定的有效纸面区域。只有落在该区域内的像素，才能参与后续图案渲染。
+\par 因此，赛题中的“可制作”区域并不是整个 A4 平面，而是由反射可达性、纸张边界和圆柱占位共同决定的有效纸面区域。只有落在该区域内的像素，才能参与后续图案渲染。图 \ref{fig:problem1_chain} 将逆反射链 $P_{img}\rightarrow P_{cyl}\rightarrow P_{paper}$、几何约束以及 A4 上的有效纸面区域汇总在同一幅示意图中。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../outputs/cylindrical_anamorphosis/problem1_inverse_reflection_chain.png}
+\caption{问题一逆反射链、约束条件与有效纸面区域示意图}
+\label{fig:problem1_chain}
+\end{figure}
 
 \subsection{镜面图案到纸面图案的变换算法}
 \par 由解析推导可知，本文采用逐像素逆映射方式生成纸面图案：先在虚拟像平面上均匀采样像素网格，再通过逆反射链把每个像素送到纸面坐标，最后根据采样位置完成颜色写入。该过程的整体流程如图 \ref{fig:workflow} 所示。

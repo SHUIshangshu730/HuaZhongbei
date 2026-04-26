@@ -1,0 +1,82 @@
+{
+  "case_A_mona_cat": {
+    "C_freq": 0.106226168725583,
+    "C_sym": 0.06141686696975137,
+    "C_tol": 0.351177155143228,
+    "C_dir": 0.0064265264630286425,
+    "C_total": 0.13131167932539775,
+    "feasibility": "难以实现"
+  },
+  "case_B_cat_mona": {
+    "C_freq": 0.06553585642209626,
+    "C_sym": 0.06141686696975137,
+    "C_tol": 0.351177155143228,
+    "C_dir": 0.0064265264630286425,
+    "C_total": 0.12113910124952607,
+    "feasibility": "难以实现"
+  },
+  "feasibility_grid": [
+    {
+      "paper_complexity": "低频简单",
+      "mirror_complexity": "低频简单",
+      "C_total": 0.6121285113249715,
+      "feasibility": "勉强实现"
+    },
+    {
+      "paper_complexity": "低频简单",
+      "mirror_complexity": "中等复杂",
+      "C_total": 0.5348722233700532,
+      "feasibility": "勉强实现"
+    },
+    {
+      "paper_complexity": "低频简单",
+      "mirror_complexity": "高频复杂",
+      "C_total": 0.30671057563832654,
+      "feasibility": "难以实现"
+    },
+    {
+      "paper_complexity": "中等复杂",
+      "mirror_complexity": "低频简单",
+      "C_total": 0.4471185543207369,
+      "feasibility": "勉强实现"
+    },
+    {
+      "paper_complexity": "中等复杂",
+      "mirror_complexity": "中等复杂",
+      "C_total": 0.3698209555774816,
+      "feasibility": "难以实现"
+    },
+    {
+      "paper_complexity": "中等复杂",
+      "mirror_complexity": "高频复杂",
+      "C_total": 0.14140666236620103,
+      "feasibility": "难以实现"
+    },
+    {
+      "paper_complexity": "高频复杂",
+      "mirror_complexity": "低频简单",
+      "C_total": 0.29634740383587843,
+      "feasibility": "难以实现"
+    },
+    {
+      "paper_complexity": "高频复杂",
+      "mirror_complexity": "中等复杂",
+      "C_total": 0.2190872868225941,
+      "feasibility": "难以实现"
+    },
+    {
+      "paper_complexity": "高频复杂",
+      "mirror_complexity": "高频复杂",
+      "C_total": 0.338058469490905,
+      "feasibility": "难以实现"
+    }
+  ],
+  "conditions": {
+    "condition1": "低频优先：图案主要语义集中在低频分量（空间频率<5 cycles/cm）",
+    "condition2": "对称性适配：旋转对称图案与圆柱反射机制天然兼容",
+    "condition3": "语义容错：抽象图案容错度高，可承受较大几何畸变",
+    "condition4": "主方向一致：两图案主方向夹角越小，兼容性越高",
+    "threshold_feasible": 0.7,
+    "threshold_marginal": 0.4
+  }
+}

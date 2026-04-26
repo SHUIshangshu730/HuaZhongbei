@@ -1,0 +1,140 @@
+% === 技术路线图 → 问题分析章节 ===
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.85,
+  main/.style={rectangle, rounded corners=3pt,
+    minimum width=5.5cm, minimum height=0.7cm,
+    draw=blue!80, line width=0.7pt, fill=blue!6,
+    font=\small\bfseries, align=center,
+    drop shadow={opacity=0.15, shadow xshift=0.5pt, shadow yshift=-0.5pt}},
+  sub/.style={rectangle, rounded corners=2pt,
+    minimum width=2.4cm, minimum height=0.6cm,
+    draw=teal!70, line width=0.5pt, fill=white,
+    font=\footnotesize, align=center},
+  dashbox/.style={rectangle, rounded corners=4pt,
+    draw=gray!40, dashed, line width=0.7pt, fill=gray!2},
+  bigarrow/.style={-stealth, line width=1.4pt, color=blue!70},
+  smarrow/.style={-stealth, line width=0.5pt, color=gray!70},
+  steplabel/.style={font=\small\bfseries, color=black!80}
+]
+
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box0) at (0, 0) {};
+\node[steplabel, anchor=north west] at (box0.north west) {\scriptsize 基础模型};
+\node[main] (m0) at (0, 0.35) {圆柱镜反射逆映射模型};
+\node[sub] (s0a) at (-4.2,-0.65) {坐标系建立};
+\node[sub] (s0b) at (-1.4,-0.65) {反射定律推导};
+\node[sub] (s0c) at (1.4,-0.65) {逆映射闭式解};
+\node[sub] (s0d) at (4.2,-0.65) {参数优化};
+\foreach \x in {s0a,s0b,s0c,s0d} {\draw[smarrow] (m0) -- (\x);}
+
+\draw[bigarrow] (0,-1.4) -- (0,-2.0);
+
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box1) at (0,-3.8) {};
+\node[steplabel, anchor=north west] at (box1.north west) {\scriptsize 问题一};
+\node[main] (m1) at (0,-2.5) {给定镜面图案，反求纸面图案};
+\node[sub] (s1a) at (-4.2,-3.4) {图像预处理};
+\node[sub] (s1b) at (-1.4,-3.4) {逆向纹理映射$^{\bigstar}$};
+\node[sub] (s1c) at (1.4,-3.4) {正向仿真验证};
+\node[sub] (s1d) at (4.2,-3.4) {SSIM/PSNR评价};
+\foreach \x in {s1a,s1b,s1c,s1d} {\draw[smarrow] (m1) -- (\x);}
+
+\draw[bigarrow] (0,-4.5) -- (0,-5.1);
+
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box2) at (0,-6.9) {};
+\node[steplabel, anchor=north west] at (box2.north west) {\scriptsize 问题二};
+\node[main] (m2) at (0,-5.6) {纸面与镜面图案同时有意义};
+\node[sub] (s2a) at (-4.2,-6.5) {自由设计场景};
+\node[sub] (s2b) at (-1.4,-6.5) {频谱分离原理$^{\bigstar}$};
+\node[sub] (s2c) at (1.4,-6.5) {艺术加工策略};
+\node[sub] (s2d) at (4.2,-6.5) {案例构造验证};
+\foreach \x in {s2a,s2b,s2c,s2d} {\draw[smarrow] (m2) -- (\x);}
+
+\draw[bigarrow] (0,-7.6) -- (0,-8.2);
+
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box3) at (0,-10.0) {};
+\node[steplabel, anchor=north west] at (box3.north west) {\scriptsize 问题三};
+\node[main] (m3) at (0,-8.7) {双目标兼容性理论分析};
+\node[sub] (s3a) at (-4.2,-9.6) {双目标优化模型};
+\node[sub] (s3b) at (-1.4,-9.6) {兼容性指标体系$^{\bigstar}$};
+\node[sub] (s3c) at (1.4,-9.6) {可行域相图分析};
+\node[sub] (s3d) at (4.2,-9.6) {规律性结论};
+\foreach \x in {s3a,s3b,s3c,s3d} {\draw[smarrow] (m3) -- (\x);}
+
+\end{tikzpicture}
+\caption{整体技术路线图}\label{fig:roadmap}
+\end{figure}
+
+% === 问题一求解流程图 → 问题一章节 ===
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.85,
+  main/.style={rectangle, rounded corners=3pt,
+    minimum width=5.5cm, minimum height=0.7cm,
+    draw=blue!80, line width=0.7pt, fill=blue!6,
+    font=\small\bfseries, align=center},
+  sub/.style={rectangle, rounded corners=2pt,
+    minimum width=2.6cm, minimum height=0.6cm,
+    draw=teal!70, line width=0.5pt, fill=white,
+    font=\footnotesize, align=center},
+  annot/.style={rectangle, rounded corners=2pt,
+    minimum width=3.2cm, minimum height=0.55cm,
+    draw=blue!50, line width=0.4pt, fill=blue!3,
+    font=\scriptsize\bfseries, align=center, text=black},
+  bigarrow/.style={-stealth, line width=1.4pt, color=blue!70},
+  smarrow/.style={-stealth, line width=0.5pt, color=gray!70}
+]
+\node[main] (n1) at (0, 0)   {输入目标镜面图案 $I_M^*$};
+\node[main] (n2) at (0,-1.2) {图像预处理（灰度化/颜色聚类）};
+\node[main] (n3) at (0,-2.4) {圆柱参数初始化 $\boldsymbol{p}^{(0)}$};
+\node[main] (n4) at (0,-3.6) {逆映射生成纸面图案 $I_P$};
+\node[main] (n5) at (0,-4.8) {正向仿真恢复 $I_{\mathrm{sim}}$};
+\node[main] (n6) at (0,-6.0) {计算 SSIM$(I_{\mathrm{sim}}, I_M^*)$};
+\node[main] (n7) at (0,-7.2) {差分进化优化参数 $\boldsymbol{p}$};
+\node[main] (n8) at (0,-8.4) {输出最优纸面图案 $I_P^*$};
+\foreach \a/\b in {n1/n2,n2/n3,n3/n4,n4/n5,n5/n6,n6/n7,n7/n8}
+  {\draw[bigarrow] (\a) -- (\b);}
+\node[annot] (r1) at (5.5, 0)   {图3蒙娜丽莎/图4卡通猫};
+\node[annot] (r4) at (5.5,-3.6) {逆映射闭式解};
+\node[annot] (r6) at (5.5,-6.0) {SSIM$>$0.80则停止};
+\node[annot] (r7) at (5.5,-7.2) {种群50，迭代200次};
+\foreach \m/\r in {n1/r1,n4/r4,n6/r6,n7/r7}
+  {\draw[smarrow] (\m.east) -- (\r.west);}
+\end{tikzpicture}
+\caption{问题一求解流程图}\label{fig:flow_q1}
+\end{figure}
+
+% === 问题二求解流程图 → 问题二章节 ===
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.85,
+  main/.style={rectangle, rounded corners=3pt,
+    minimum width=5.5cm, minimum height=0.7cm,
+    draw=blue!80, line width=0.7pt, fill=blue!6,
+    font=\small\bfseries, align=center},
+  sub/.style={rectangle, rounded corners=2pt,
+    minimum width=2.6cm, minimum height=0.6cm,
+    draw=teal!70, line width=0.5pt, fill=white,
+    font=\footnotesize, align=center},
+  bigarrow/.style={-stealth, line width=1.4pt, color=blue!70},
+  smarrow/.style={-stealth, line width=0.5pt, color=gray!70}
+]
+\node[main] (a1) at (0, 0)  {层次1：自由设计场景};
+\node[sub]  (a2) at (-2.8,-1.1) {选取对称纸面图案};
+\node[sub]  (a3) at (0,   -1.1) {正向映射得镜面图案};
+\node[sub]  (a4) at (2.8, -1.1) {语义匹配与微调};
+\foreach \x in {a2,a3,a4} {\draw[smarrow] (a1) -- (\x);}
+\draw[bigarrow] (0,-1.8) -- (0,-2.4);
+\node[main] (b1) at (0,-2.9) {层次2：指定镜面图案};
+\node[sub]  (b2) at (-2.8,-4.0) {逆映射生成纸面图案};
+\node[sub]  (b3) at (0,   -4.0) {频谱分离（低频语义）};
+\node[sub]  (b4) at (2.8, -4.0) {艺术加工（色彩/背景）};
+\foreach \x in {b2,b3,b4} {\draw[smarrow] (b1) -- (\x);}
+\draw[bigarrow] (0,-4.7) -- (0,-5.3);
+\node[main] (c1) at (0,-5.8) {案例构造与可视化验证};
+\node[sub]  (c2) at (-2.8,-6.9) {案例1：文字"ART"};
+\node[sub]  (c3) at (0,   -6.9) {案例2：笑脸图案};
+\node[sub]  (c4) at (2.8, -6.9) {案例3：万花筒图案};
+\foreach \x in {c2,c3,c4} {\draw[smarrow] (c1) -- (\x);}
+\end{tikzpicture}
+\caption{问题二求解流程图}\label{fig:flow_q2}
+\end{figure}

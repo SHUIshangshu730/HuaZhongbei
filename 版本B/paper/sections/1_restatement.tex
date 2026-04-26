@@ -1,0 +1,72 @@
+\section{问题重述}
+
+艺术家Reza Ezoji的系列作品展示了一种独特的视觉艺术形式：在纸张上绘制看似杂乱无章的图案，当在特定位置放置圆柱形镜子后，镜面能够反射出人物肖像、动植物形象或文字等有意义的图案。韩国Luycho公司的倒影杯产品也利用了类似原理，通过精心设计的曲面实现丰富的反射图案变化。这类作品的核心在于利用曲面镜的几何反射特性，将纸面上的"混乱"图案转化为镜面中的"有序"图案。
+
+为简化分析，题目假设纸张为理想平面（A4幅面），镜面为理想圆柱体侧面，圆柱体竖直放置。纸面上的图案称为纸面图案，观察者看到的镜面反射图案称为镜面图案。本文围绕以下三个递进问题展开研究。
+
+\textbf{问题一}要求建立一般数学模型，解决给定镜面图案参考图时如何设计纸面图案以及确定圆柱镜几何尺寸和摆放位置的问题，并针对题目给出的图3（蒙娜丽莎）和图4（卡通猫）两幅参考图给出具体设计方案。核心挑战在于建立圆柱面反射的逆映射关系，将镜面坐标系中的目标图案反向映射到纸面坐标系，同时优化圆柱半径、高度、位置和观察角度等参数。
+
+\textbf{问题二}在问题一的基础上进一步探讨：现有作品中纸面图案均是无意义的混乱线条，能否设计出纸面图案与镜面图案均有意义的作品？题目分两个层次：（1）不指定镜面图案时，能否使纸面和镜面图案同时有意义；（2）指定镜面图案后，能否使纸面图案也有意义。两者内容可以相互独立，不要求有关联。
+
+\textbf{问题三}进一步提出最严格的约束：同时指定任意的镜面图案和纸面图案，仅靠艺术加工能否使两者均有意义？或者说，当要求镜面图案和纸面图案均有意义时，两者应满足怎样的条件或关系。这一问题要求建立理论框架，分析双目标约束下的可行性边界。
+
+三个问题构成递进的研究体系：问题一建立基础的反射逆映射模型，问题二探讨单侧约束下的可行性，问题三分析双侧约束下的兼容性条件。整体技术路线如图\ref{fig:roadmap}所示。
+
+\begin{figure}[H]
+\centering
+\adjustbox{max width=\textwidth}{%
+\begin{tikzpicture}[scale=0.85,
+  main/.style={rectangle, rounded corners=3pt,
+    minimum width=5.5cm, minimum height=0.7cm,
+    draw=blue!80, line width=0.7pt, fill=blue!6,
+    font=\small\bfseries, align=center,
+    drop shadow={opacity=0.15, shadow xshift=0.5pt, shadow yshift=-0.5pt}},
+  sub/.style={rectangle, rounded corners=2pt,
+    minimum width=2.4cm, minimum height=0.6cm,
+    draw=teal!70, line width=0.5pt, fill=white,
+    font=\footnotesize, align=center},
+  dashbox/.style={rectangle, rounded corners=4pt,
+    draw=gray!40, dashed, line width=0.7pt, fill=gray!2},
+  bigarrow/.style={-stealth, line width=1.4pt, color=blue!70},
+  smarrow/.style={-stealth, line width=0.5pt, color=gray!70},
+  steplabel/.style={font=\small\bfseries, color=black!80}
+]
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box0) at (0, 0) {};
+\node[steplabel, anchor=north west] at (box0.north west) {\scriptsize 基础模型};
+\node[main] (m0) at (0, 0.35) {圆柱镜反射逆映射模型};
+\node[sub] (s0a) at (-4.2,-0.65) {坐标系建立};
+\node[sub] (s0b) at (-1.4,-0.65) {反射定律推导};
+\node[sub] (s0c) at (1.4,-0.65) {逆映射闭式解};
+\node[sub] (s0d) at (4.2,-0.65) {参数优化};
+\foreach \x in {s0a,s0b,s0c,s0d} {\draw[smarrow] (m0) -- (\x);}
+\draw[bigarrow] (0,-1.4) -- (0,-2.0);
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box1) at (0,-3.8) {};
+\node[steplabel, anchor=north west] at (box1.north west) {\scriptsize 问题一};
+\node[main] (m1) at (0,-2.5) {给定镜面图案，反求纸面图案};
+\node[sub] (s1a) at (-4.2,-3.4) {图像预处理};
+\node[sub] (s1b) at (-1.4,-3.4) {逆向纹理映射};
+\node[sub] (s1c) at (1.4,-3.4) {正向仿真验证};
+\node[sub] (s1d) at (4.2,-3.4) {SSIM/PSNR评价};
+\foreach \x in {s1a,s1b,s1c,s1d} {\draw[smarrow] (m1) -- (\x);}
+\draw[bigarrow] (0,-4.5) -- (0,-5.1);
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box2) at (0,-6.9) {};
+\node[steplabel, anchor=north west] at (box2.north west) {\scriptsize 问题二};
+\node[main] (m2) at (0,-5.6) {纸面与镜面图案同时有意义};
+\node[sub] (s2a) at (-4.2,-6.5) {自由设计场景};
+\node[sub] (s2b) at (-1.4,-6.5) {频谱分离原理};
+\node[sub] (s2c) at (1.4,-6.5) {艺术加工策略};
+\node[sub] (s2d) at (4.2,-6.5) {案例构造验证};
+\foreach \x in {s2a,s2b,s2c,s2d} {\draw[smarrow] (m2) -- (\x);}
+\draw[bigarrow] (0,-7.6) -- (0,-8.2);
+\node[dashbox, minimum width=13cm, minimum height=2.0cm] (box3) at (0,-10.0) {};
+\node[steplabel, anchor=north west] at (box3.north west) {\scriptsize 问题三};
+\node[main] (m3) at (0,-8.7) {双目标兼容性理论分析};
+\node[sub] (s3a) at (-4.2,-9.6) {双目标优化模型};
+\node[sub] (s3b) at (-1.4,-9.6) {兼容性指标体系};
+\node[sub] (s3c) at (1.4,-9.6) {可行域相图分析};
+\node[sub] (s3d) at (4.2,-9.6) {规律性结论};
+\foreach \x in {s3a,s3b,s3c,s3d} {\draw[smarrow] (m3) -- (\x);}
+\end{tikzpicture}
+}%
+\caption{整体技术路线图}\label{fig:roadmap}
+\end{figure}

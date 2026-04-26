@@ -1,0 +1,36 @@
+{
+  "fig3": {
+    "label": "fig3_mona",
+    "params": {
+      "R": 20.0,
+      "x0": 105.0,
+      "y0": 148.0,
+      "H": 80.0,
+      "phi": 3.141592653589793,
+      "alpha_deg": 59.99999999999999
+    },
+    "ssim": -0.2359740790660852,
+    "psnr": 8.855533652502277,
+    "jacobian_cv": 0.5715261513960491,
+    "boundary_penalty": 0.08606666666666667,
+    "paper_pattern_path": "figures/paper_pattern_fig3_mona.png",
+    "mirror_sim_path": "figures/mirror_sim_fig3_mona.png"
+  },
+  "fig4": {
+    "label": "fig4_cat",
+    "params": {
+      "R": 15.0,
+      "x0": 105.0,
+      "y0": 148.0,
+      "H": 60.0,
+      "phi": 3.141592653589793,
+      "alpha_deg": 55.0
+    },
+    "ssim": 0.1976671404661453,
+    "psnr": 18.4009164232571,
+    "jacobian_cv": 0.5694097590994788,
+    "boundary_penalty": 0.0,
+    "paper_pattern_path": "figures/paper_pattern_fig4_cat.png",
+    "mirror_sim_path": "figures/mirror_sim_fig4_cat.png"
+  }
+}

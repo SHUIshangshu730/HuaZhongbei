@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.23)  25 APR 2026 14:03
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.23)  25 APR 2026 21:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -827,10 +827,14 @@ File: ../outputs/cylindrical_anamorphosis/geometry_schematic.png Graphic file (
 type bmp)
 <../outputs/cylindrical_anamorphosis/geometry_schematic.png>
  [6] [7]
+File: ../outputs/cylindrical_anamorphosis/problem1_inverse_reflection_chain.png
+ Graphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/problem1_inverse_reflection_chain.png>
+ [8]
 File: ../outputs/cylindrical_anamorphosis/algorithm_workflow_flowchart.png Grap
 hic file (type bmp)
 <../outputs/cylindrical_anamorphosis/algorithm_workflow_flowchart.png>
- [8] [9]
+ [9]
 File: ../outputs/cylindrical_anamorphosis/target_image_gallery.png Graphic file
  (type bmp)
 <../outputs/cylindrical_anamorphosis/target_image_gallery.png>
@@ -838,10 +842,10 @@ File: ../outputs/cylindrical_anamorphosis/target_image_gallery.png Graphic file
 File: ../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png Graphi
 c file (type bmp)
 <../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png>
+ [12]
 File: ../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png Graphic fi
 le (type bmp)
 <../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png>
- [12]
 File: ../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png Graphic fi
 le (type bmp)
 <../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png>
@@ -930,7 +934,7 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
 [30]
-Overfull \hbox (44.16365pt too wide) in paragraph at lines 784--785
+Overfull \hbox (44.16365pt too wide) in paragraph at lines 791--792
 \TU/lmtt/m/n/12 generate_analysis_assets.py\TU/FandolSong-Regular(0)/m/n/12 ，| 
  所 有 输 出 图 像 均 保 存 于 \TU/lmtt/m/n/12 outputs/cylindrical_anamorphosis/
  []
@@ -940,12 +944,12 @@ Package rerunfilecheck Info: File `国赛.out' has not changed.
 (rerunfilecheck)             Checksum: 37AAD5D1524DEF82017BDFE638387CA2;5875.
  ) 
 Here is how much of TeX's memory you used:
- 20411 strings out of 476191
- 450403 string characters out of 5812072
- 1011914 words of memory out of 5000000
- 40809 multiletter control sequences out of 15000+600000
+ 20420 strings out of 476191
+ 451006 string characters out of 5812072
+ 1012024 words of memory out of 5000000
+ 40817 multiletter control sequences out of 15000+600000
  480413 words of font info for 111 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  89i,11n,97p,376b,2013s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on 国赛.xdv (31 pages, 374300 bytes).
+Output written on 国赛.pdf (31 pages).

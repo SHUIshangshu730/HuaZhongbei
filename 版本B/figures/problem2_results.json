@@ -1,0 +1,33 @@
+{
+  "case1": {
+    "case": "案例1_文字ART",
+    "ssim": 0.3148485574335206,
+    "feasible": false,
+    "mirror_target": "figures/case1_mirror_target.png",
+    "paper_art": "figures/case1_paper_art.png",
+    "mirror_sim": "figures/case1_mirror_sim.png"
+  },
+  "case2": {
+    "case": "案例2_笑脸",
+    "ssim": 0.33871201806991647,
+    "feasible": false,
+    "mirror_target": "figures/case2_mirror_target.png",
+    "paper_art": "figures/case2_paper_art.png",
+    "mirror_sim": "figures/case2_mirror_sim.png"
+  },
+  "case3": {
+    "case": "案例3_星形万花筒",
+    "ssim": 0.32065575921809325,
+    "feasible": false,
+    "mirror_target": "figures/case3_mirror_target.png",
+    "paper_art": "figures/case3_paper_art.png",
+    "mirror_sim": "figures/case3_mirror_sim.png"
+  },
+  "summary": {
+    "total_cases": 3,
+    "feasible_cases": 0,
+    "conclusion_level1": "自由设计场景：可行性高，放射状/对称图案天然适配圆柱反射",
+    "conclusion_level2": "指定镜面场景：低频/简单图案可行，高频复杂图案需艺术加工",
+    "avg_ssim": 0.32473877824051006
+  }
+}
