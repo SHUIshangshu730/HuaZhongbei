@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.23)  25 APR 2026 21:47
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2026.4.23)  26 APR 2026 14:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -647,82 +647,82 @@ Package: paralist 2017/01/22 v2.7 Extended list environments
  (./国赛.aux)
 \openout1 = `国赛.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 93.
-LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 97.
+LaTeX Font Info:    ... okay on input line 97.
 
 Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
 (fontspec)             this).
 
 \symlegacymaths=\mathgroup6
 LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
-(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 93.
-LaTeX Font Info:    Redeclaring math accent \acute on input line 93.
-LaTeX Font Info:    Redeclaring math accent \grave on input line 93.
-LaTeX Font Info:    Redeclaring math accent \ddot on input line 93.
-LaTeX Font Info:    Redeclaring math accent \tilde on input line 93.
-LaTeX Font Info:    Redeclaring math accent \bar on input line 93.
-LaTeX Font Info:    Redeclaring math accent \breve on input line 93.
-LaTeX Font Info:    Redeclaring math accent \check on input line 93.
-LaTeX Font Info:    Redeclaring math accent \hat on input line 93.
-LaTeX Font Info:    Redeclaring math accent \dot on input line 93.
-LaTeX Font Info:    Redeclaring math accent \mathring on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Delta on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Theta on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Xi on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Pi on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Phi on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Psi on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \Omega on input line 93.
-LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 93.
-LaTeX Font Info:    Redeclaring symbol font `operators' on input line 93.
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 97.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 97.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 97.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 97.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 97.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 97.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 97.
+LaTeX Font Info:    Redeclaring math accent \check on input line 97.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 97.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 97.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 97.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 97.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 97.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 93.
+(Font)              `operators' in the math version `normal' on input line 97.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 93.
+(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 97.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 93.
+(Font)              `operators' in the math version `bold' on input line 97.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 93.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/m/n on input line 97.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
-(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 93.
+(Font)                  TU/lmr/m/n --> TU/lmr/m/n on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 93.
+(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 93.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/b/n on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 93.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 93.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 97.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
-(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 93.
+(Font)                  TU/lmr/m/n --> TU/lmr/b/n on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
-(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 93.
+(Font)                  OT1/cmr/bx/it --> TU/lmr/b/it on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 93.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/b/n on input line 97.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 93.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 97.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -732,15 +732,15 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
-* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* h-part:(L,W,R)=(56.9055pt, 483.69687pt, 56.9055pt)
+* v-part:(T,H,B)=(56.9055pt, 731.23584pt, 56.9055pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=455.24411pt
-* \textheight=702.78308pt
-* \oddsidemargin=-1.1381pt
-* \evensidemargin=-1.1381pt
-* \topmargin=-38.1381pt
+* \textwidth=483.69687pt
+* \textheight=731.23584pt
+* \oddsidemargin=-15.36449pt
+* \evensidemargin=-15.36449pt
+* \topmargin=-52.36449pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=12.0pt
@@ -763,7 +763,7 @@ Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring OFF on input line 93.
+Package hyperref Info: Link coloring OFF on input line 97.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
 
@@ -775,9 +775,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count344
 )
-LaTeX Info: Redefining \ref on input line 93.
-LaTeX Info: Redefining \pageref on input line 93.
-LaTeX Info: Redefining \nameref on input line 93.
+LaTeX Info: Redefining \ref on input line 97.
+LaTeX Info: Redefining \pageref on input line 97.
+LaTeX Info: Redefining \nameref on input line 97.
 
 (./国赛.out) (./国赛.out)
 \@outlinefile=\write3
@@ -805,13 +805,13 @@ Package fontspec Info: Font family 'FandolHei-Regular(0)' created for font
 (fontspec)             <->"[FandolHei-Bold.otf]/OT:language=dflt;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 96.
-
+LaTeX Font Info:    Trying to load font information for U+msa on input line 100
+.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 96.
-
+LaTeX Font Info:    Trying to load font information for U+msb on input line 100
+.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -830,90 +830,99 @@ type bmp)
 File: ../outputs/cylindrical_anamorphosis/problem1_inverse_reflection_chain.png
  Graphic file (type bmp)
 <../outputs/cylindrical_anamorphosis/problem1_inverse_reflection_chain.png>
- [8]
 File: ../outputs/cylindrical_anamorphosis/algorithm_workflow_flowchart.png Grap
 hic file (type bmp)
 <../outputs/cylindrical_anamorphosis/algorithm_workflow_flowchart.png>
- [9]
+ [8] [9]
 File: ../outputs/cylindrical_anamorphosis/target_image_gallery.png Graphic file
  (type bmp)
 <../outputs/cylindrical_anamorphosis/target_image_gallery.png>
- [10] [11]
-File: ../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png Graphi
-c file (type bmp)
-<../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png>
- [12]
-File: ../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png Graphic fi
-le (type bmp)
-<../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png>
-File: ../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png Graphic fi
-le (type bmp)
-<../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png>
- [13]
-File: ../outputs/cylindrical_anamorphosis/q2_specified_mirror_gallery.png Graph
-ic file (type bmp)
-<../outputs/cylindrical_anamorphosis/q2_specified_mirror_gallery.png>
- [14] [15]
-File: ../outputs/cylindrical_anamorphosis/q3_dof_constraint_comparison.png Grap
-hic file (type bmp)
-<../outputs/cylindrical_anamorphosis/q3_dof_constraint_comparison.png>
- [16] [17]
-File: ../outputs/cylindrical_anamorphosis/q3_compatibility_phase_diagram.png Gr
-aphic file (type bmp)
-<../outputs/cylindrical_anamorphosis/q3_compatibility_phase_diagram.png>
-File: ../outputs/cylindrical_anamorphosis/q3_pairwise_compatibility_heatmap.png
- Graphic file (type bmp)
-<../outputs/cylindrical_anamorphosis/q3_pairwise_compatibility_heatmap.png>
-
-[18]
-File: ../outputs/cylindrical_anamorphosis/q3_compatibility_examples.png Graphic
- file (type bmp)
-<../outputs/cylindrical_anamorphosis/q3_compatibility_examples.png>
- [19] [20]
-File: ../outputs/cylindrical_anamorphosis/spatial_experiment_mockup.png Graphic
- file (type bmp)
-<../outputs/cylindrical_anamorphosis/spatial_experiment_mockup.png>
- [21]
-File: ../outputs/cylindrical_anamorphosis/fig3_mirror_reconstruction_comparison
-.png Graphic file (type bmp)
-<../outputs/cylindrical_anamorphosis/fig3_mirror_reconstruction_comparison.png>
-
-File: ../outputs/cylindrical_anamorphosis/fig4_mirror_reconstruction_comparison
-.png Graphic file (type bmp)
-<../outputs/cylindrical_anamorphosis/fig4_mirror_reconstruction_comparison.png>
-
- [22]
-File: ../outputs/cylindrical_anamorphosis/candidate_tradeoff_comparison.png Gra
-phic file (type bmp)
-<../outputs/cylindrical_anamorphosis/candidate_tradeoff_comparison.png>
- [23]
-File: ../outputs/cylindrical_anamorphosis/sensitivity_score_and_coverage.png Gr
-aphic file (type bmp)
-<../outputs/cylindrical_anamorphosis/sensitivity_score_and_coverage.png>
- [24]
-File: ../outputs/cylindrical_anamorphosis/sensitivity_condition_numbers.png Gra
-phic file (type bmp)
-<../outputs/cylindrical_anamorphosis/sensitivity_condition_numbers.png>
- [25] [26] [27] [28]
+ [10]
 File: ../outputs/cylindrical_anamorphosis/fig3_paper_pattern.png Graphic file (
 type bmp)
 <../outputs/cylindrical_anamorphosis/fig3_paper_pattern.png>
 File: ../outputs/cylindrical_anamorphosis/fig4_paper_pattern.png Graphic file (
 type bmp)
 <../outputs/cylindrical_anamorphosis/fig4_paper_pattern.png>
-File: ../outputs/cylindrical_anamorphosis/fig3_diagnostic.png Graphic file (typ
-e bmp)
-<../outputs/cylindrical_anamorphosis/fig3_diagnostic.png>
-File: ../outputs/cylindrical_anamorphosis/fig4_diagnostic.png Graphic file (typ
-e bmp)
-<../outputs/cylindrical_anamorphosis/fig4_diagnostic.png>
+ [11]
 File: ../outputs/cylindrical_anamorphosis/fig3_occupancy.png Graphic file (type
  bmp)
 <../outputs/cylindrical_anamorphosis/fig3_occupancy.png>
 File: ../outputs/cylindrical_anamorphosis/fig4_occupancy.png Graphic file (type
  bmp)
 <../outputs/cylindrical_anamorphosis/fig4_occupancy.png>
- [29]
+ [12]
+File: ../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png Graphi
+c file (type bmp)
+<../outputs/cylindrical_anamorphosis/binocular_viewing_geometry.png>
+ [13]
+File: ../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png Graphic fi
+le (type bmp)
+<../outputs/cylindrical_anamorphosis/binocular_viewing_zone.png>
+ [14]
+File: ../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png Graphic fi
+le (type bmp)
+<../outputs/cylindrical_anamorphosis/q2_free_design_gallery.png>
+ [15]
+File: ../outputs/cylindrical_anamorphosis/q2_specified_mirror_gallery.png Graph
+ic file (type bmp)
+<../outputs/cylindrical_anamorphosis/q2_specified_mirror_gallery.png>
+ [16] [17]
+File: ../outputs/cylindrical_anamorphosis/q3_dof_constraint_comparison.png Grap
+hic file (type bmp)
+<../outputs/cylindrical_anamorphosis/q3_dof_constraint_comparison.png>
+
+[18]
+File: ../outputs/cylindrical_anamorphosis/q3_compatibility_phase_diagram.png Gr
+aphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/q3_compatibility_phase_diagram.png>
+ [19]
+File: ../outputs/cylindrical_anamorphosis/q3_pairwise_compatibility_heatmap.png
+ Graphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/q3_pairwise_compatibility_heatmap.png>
+File: ../outputs/cylindrical_anamorphosis/q3_compatibility_examples.png Graphic
+ file (type bmp)
+<../outputs/cylindrical_anamorphosis/q3_compatibility_examples.png>
+ [20] [21]
+File: ../outputs/cylindrical_anamorphosis/spatial_experiment_mockup.png Graphic
+ file (type bmp)
+<../outputs/cylindrical_anamorphosis/spatial_experiment_mockup.png>
+ [22]
+File: ../outputs/cylindrical_anamorphosis/fig3_mirror_reconstruction_comparison
+.png Graphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/fig3_mirror_reconstruction_comparison.png>
+
+ [23]
+File: ../outputs/cylindrical_anamorphosis/fig4_mirror_reconstruction_comparison
+.png Graphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/fig4_mirror_reconstruction_comparison.png>
+
+ [24]
+File: ../outputs/cylindrical_anamorphosis/fig3_reconstruction_3D.png Graphic fi
+le (type bmp)
+<../outputs/cylindrical_anamorphosis/fig3_reconstruction_3D.png>
+File: ../outputs/cylindrical_anamorphosis/fig4_reconstruction_3D.png Graphic fi
+le (type bmp)
+<../outputs/cylindrical_anamorphosis/fig4_reconstruction_3D.png>
+File: ../outputs/cylindrical_anamorphosis/fig3_diagnostic.png Graphic file (typ
+e bmp)
+<../outputs/cylindrical_anamorphosis/fig3_diagnostic.png>
+File: ../outputs/cylindrical_anamorphosis/fig4_diagnostic.png Graphic file (typ
+e bmp)
+<../outputs/cylindrical_anamorphosis/fig4_diagnostic.png>
+ [25]
+File: ../outputs/cylindrical_anamorphosis/candidate_tradeoff_comparison.png Gra
+phic file (type bmp)
+<../outputs/cylindrical_anamorphosis/candidate_tradeoff_comparison.png>
+ [26] [27]
+File: ../outputs/cylindrical_anamorphosis/sensitivity_score_and_coverage.png Gr
+aphic file (type bmp)
+<../outputs/cylindrical_anamorphosis/sensitivity_score_and_coverage.png>
+ [28]
+File: ../outputs/cylindrical_anamorphosis/sensitivity_condition_numbers.png Gra
+phic file (type bmp)
+<../outputs/cylindrical_anamorphosis/sensitivity_condition_numbers.png>
+ [29] [30] [31]
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2020/03/24 1.8d listings language file
 )
@@ -933,23 +942,17 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-[30]
-Overfull \hbox (44.16365pt too wide) in paragraph at lines 791--792
-\TU/lmtt/m/n/12 generate_analysis_assets.py\TU/FandolSong-Regular(0)/m/n/12 ，| 
- 所 有 输 出 图 像 均 保 存 于 \TU/lmtt/m/n/12 outputs/cylindrical_anamorphosis/
- []
-
-[31] (./国赛.aux)
+[32] [33] (./国赛.aux)
 Package rerunfilecheck Info: File `国赛.out' has not changed.
-(rerunfilecheck)             Checksum: 37AAD5D1524DEF82017BDFE638387CA2;5875.
+(rerunfilecheck)             Checksum: 32D2354C341CEB51660E67F0255900A0;5764.
  ) 
 Here is how much of TeX's memory you used:
- 20420 strings out of 476191
- 451006 string characters out of 5812072
- 1012024 words of memory out of 5000000
- 40817 multiletter control sequences out of 15000+600000
- 480413 words of font info for 111 fonts, out of 8000000 for 9000
+ 20524 strings out of 476191
+ 457426 string characters out of 5812072
+ 1083769 words of memory out of 5000000
+ 40912 multiletter control sequences out of 15000+600000
+ 481090 words of font info for 118 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 89i,11n,97p,376b,2013s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 89i,11n,97p,376b,1360s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on 国赛.pdf (31 pages).
+Output written on 国赛.pdf (33 pages).
