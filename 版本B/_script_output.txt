@@ -1,0 +1,26 @@
+=== code/problem1.py 运行结果 ===
+退出码: 0 | 耗时: 66032ms
+
+--- stdout ---
+
+=== 问题一：处理 fig3_mona ===
+  图像尺寸: (447, 300, 3)
+  使用参数: R=20.0, x0=105.0, y0=148.0, H=80.0, phi=3.142, alpha=60.0°
+  纸面图案已保存: figures/paper_pattern_fig3_mona.png, mean=99.8
+  SSIM=-0.2336, PSNR=9.10dB, 畸变CV=0.5715, 超界率=0.0861
+
+=== 问题一：处理 fig4_cat ===
+  图像尺寸: (489, 897, 3)
+  使用参数: R=15.0, x0=105.0, y0=148.0, H=60.0, phi=3.142, alpha=55.0°
+  纸面图案已保存: figures/paper_pattern_fig4_cat.png, mean=220.9
+  SSIM=0.1648, PSNR=18.50dB, 畸变CV=0.5694, 超界率=0.0000
+
+问题一结果已保存到 figures/problem1_results.json
+
+
+--- 生成文件 ---
+figures/mirror_sim_fig3_mona.png
+figures/mirror_sim_fig4_cat.png
+figures/paper_pattern_fig3_mona.png
+figures/paper_pattern_fig4_cat.png
+figures/problem1_results.json

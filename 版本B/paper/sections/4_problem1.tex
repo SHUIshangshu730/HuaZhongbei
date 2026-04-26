@@ -202,3 +202,93 @@ $$
 \end{figure}
 
 等高线图揭示了参数空间中SSIM的分布特征。SSIM对俯仰角 $\alpha$ 的变化最为敏感，存在明显的最优区域；圆柱半径 $R$ 在一定范围内对SSIM影响相对平缓，说明模型对半径参数具有一定的鲁棒性。最优参数组合附近的SSIM等高线较为密集，表明在最优点附近参数需要精确控制，而远离最优点时SSIM变化趋于平缓，这一特征有利于差分进化算法的全局搜索。
+
+\subsection{人眼视觉因素约束分析}
+
+前述模型基于远场平行光近似，将观察者简化为单一视线方向。然而实际观察场景中，人从斜上方以双眼观察圆柱镜面，左右眼的视线方向存在差异，由此引入双目视差、视角畸变和深度感知等人因约束。本节将这些因素纳入模型框架，建立更贴近真实观察体验的设计准则。图\ref{fig:binocular_3d}展示了双目观察的三维空间几何关系。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth]{../figures/fig_binocular_3d.pdf}
+\caption{双目观察三维几何示意图：左眼$E_L$与右眼$E_R$从斜上方观察圆柱镜面，各自的反射光线到达纸面不同位置$P_L$、$P_R$，虚像平面（虚线框）位于圆柱内部}\label{fig:binocular_3d}
+\end{figure}
+
+\subsubsection{双目观察几何模型}
+
+设观察者双眼位于空间中 $E_L = (x_e - d/2,\; y_e,\; z_e)$ 和 $E_R = (x_e + d/2,\; y_e,\; z_e)$，其中 $d = d_{\text{IPD}}$ 为瞳距（成人平均值约 $63\sim65$ mm），$z_e$ 为眼睛高度。人眼等效焦距约为 $f_e \approx 17$ mm（晶状体-视网膜距离），对应的角分辨率约为 $1'$（1 arcmin）。
+
+对于圆柱面上同一点 $M(\theta, h)$，左右眼的入射方向分别为：
+
+$$
+\boldsymbol{v}_L = \frac{E_L - M}{|E_L - M|}, \quad \boldsymbol{v}_R = \frac{E_R - M}{|E_R - M|}
+$$
+
+由反射定律，左右眼对应的反射光线分别为 $\boldsymbol{r}_L = \boldsymbol{v}_L - 2(\boldsymbol{v}_L \cdot \boldsymbol{n})\boldsymbol{n}$ 和 $\boldsymbol{r}_R = \boldsymbol{v}_R - 2(\boldsymbol{v}_R \cdot \boldsymbol{n})\boldsymbol{n}$。两条反射光线与纸面 $z=0$ 的交点分别为 $P_L(x_L, y_L)$ 和 $P_R(x_R, y_R)$，两者之间的偏差即为\textbf{双目纸面视差}：
+
+$$
+\Delta P = \sqrt{(x_L - x_R)^2 + (y_L - y_R)^2}
+$$
+
+该视差意味着左右眼实际上"看到"的是纸面上不同位置的颜色信息，经大脑融合后形成镜面中的虚像。
+
+\subsubsection{虚像深度与双目视差}
+
+圆柱镜面反射形成的虚像并非位于单一平面上。对于镜面上不同位置的点，虚像的感知深度不同。设镜面点 $M(\theta, h)$ 对应的虚像深度为 $d_v(\theta, h)$，则左右眼在视网膜上的像点间距（视网膜视差）为：
+
+$$
+\delta = \frac{d_{\text{IPD}} \cdot d_v}{L(L - d_v)} \cdot f_e
+$$
+
+其中 $L = |E_c - M|$ 为双眼中点到镜面点的距离。对应的视差角为：
+
+$$
+\eta = \frac{d_{\text{IPD}} \cdot d_v}{L(L - d_v)}
+$$
+
+人眼视觉系统对双目视差的融合存在明确的生理阈值。当视差角 $\eta$ 处于不同范围时，观察体验有本质差异：（1）$\eta < 20'$（弧分）时，处于\textbf{舒适融合区}，双眼可轻松融合为单一清晰像，观察者不会感到视觉疲劳；（2）$20' \leq \eta < 60'$ 时，处于\textbf{可融合但不舒适区}，双眼仍可融合但需要额外的调节努力，长时间观察会产生视觉疲劳；（3）$\eta \geq 60'$ 时，超过\textbf{复视阈值}，双眼无法融合，观察者看到重影（复视），镜面图案的语义辨识度急剧下降。
+
+\subsubsection{虚像平面一致性约束}
+
+由于圆柱镜面的曲率，不同位置反射形成的虚像深度 $d_v(\theta, h)$ 并不一致。定义虚像深度变化范围：
+
+$$
+\Delta d_v = \max_{\theta, h} d_v(\theta, h) - \min_{\theta, h} d_v(\theta, h)
+$$
+
+若 $\Delta d_v$ 过大，镜面图案中不同区域的视差角差异将超过融合阈值，导致部分区域出现复视。为保证整体观察舒适性，需要满足\textbf{虚像平面一致性约束}：
+
+$$
+\frac{d_{\text{IPD}} \cdot \Delta d_v}{L^2} < \eta_{\text{comfort}} = \frac{20}{60} \times \frac{\pi}{180} \approx 5.8 \times 10^{-3} \text{ rad}
+$$
+
+对于典型观察距离 $L = 500$ mm、瞳距 $d_{\text{IPD}} = 64$ mm，上式给出虚像深度变化的上限为 $\Delta d_v < 22.7$ mm。这意味着镜面图案的设计应使虚像近似位于同一深度平面上，避免明显的深度跳跃。
+
+\subsubsection{视角畸变与清晰视区}
+
+图\ref{fig:visual_zones}从侧视和俯视两个角度展示了人眼视觉区域与双目视差的空间关系。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../figures/fig_visual_zones.pdf}
+\caption{人眼视觉因素示意图：(a) 侧视图——清晰视区（$2^\circ$）、有效视区（$5^\circ$）、舒适视区（$15^\circ$）的锥形投影范围与圆柱镜面的空间关系；(b) 俯视图——左右眼反射光路差异与纸面视差$\Delta P$的形成机制}\label{fig:visual_zones}
+\end{figure}
+
+观察者从斜上方观察圆柱镜面时，视线与镜面法线的夹角沿环向方向变化，导致不同区域的反射像存在视角畸变。定义左右眼的逆映射差异场：
+
+$$
+\boldsymbol{D}(\theta, h) = f(\theta, h; \boldsymbol{v}_L) - f(\theta, h; \boldsymbol{v}_R)
+$$
+
+该差异场的模 $|\boldsymbol{D}|$ 反映了双目视差在纸面上的空间分布。在圆柱正前方（$\theta \approx \phi$）区域，左右眼视线近似对称，$|\boldsymbol{D}|$ 最小；在圆柱侧面区域，左右眼视线不对称性增大，$|\boldsymbol{D}|$ 增大。
+
+人眼的清晰视区（中央凹视角）约为 $2^\circ$，有效视区约为 $5^\circ$，舒适视区约为 $15^\circ$。对于观察距离 $L = 500$ mm，舒适视区对应的镜面范围约为 $500 \times \tan(15^\circ) \approx 134$ mm。圆柱镜面的有效反射区域应尽量落在舒适视区内，以保证观察者无需大幅转动眼球即可完整观察镜面图案。
+
+结合上述分析，圆柱参数的选取应满足以下人因约束：（1）圆柱半径 $R$ 不宜过大，以控制虚像深度变化范围 $\Delta d_v$；（2）俯仰角 $\alpha$ 不宜过大，以减小双目视差的不对称性；（3）圆柱高度 $H$ 应使镜面图案的视角范围落在舒适视区内。图\ref{fig:binocular_analysis}展示了双目视差分析的完整结果。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../figures/fig_binocular_analysis.pdf}
+\caption{双目视觉因素分析：(a) 双目观察几何示意；(b) 不同虚像深度下视差角随观察距离的变化；(c) 圆柱参数$(R, \alpha)$对视差变化量的影响热力图}\label{fig:binocular_analysis}
+\end{figure}
+
+从图\ref{fig:binocular_analysis}(b)可以看出，虚像深度 $d_v = 20$ mm时，在 $L > 400$ mm的观察距离下视差角始终处于舒适区内；而 $d_v = 80$ mm时，需要 $L > 600$ mm才能进入舒适区。图\ref{fig:binocular_analysis}(c)的热力图表明，小半径（$R < 20$ mm）和中等俯仰角（$\alpha < 55^\circ$）的参数组合可以将视差变化控制在舒适阈值以内。这与前述参数优化的结果一致——图4（卡通猫）的最优参数 $R = 15$ mm、$\alpha = 55^\circ$ 恰好落在舒适区边界附近，而图3（蒙娜丽莎）的 $R = 20$ mm、$\alpha = 60^\circ$ 则略超出舒适区，这也部分解释了蒙娜丽莎方案SSIM较低的原因：较大的双目视差不对称性使得人眼实际感知的镜面图案质量低于单眼理论预测。

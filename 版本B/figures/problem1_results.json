@@ -9,8 +9,8 @@
       "phi": 3.141592653589793,
       "alpha_deg": 59.99999999999999
     },
-    "ssim": -0.2359740790660852,
-    "psnr": 8.855533652502277,
+    "ssim": -0.2335598390214719,
+    "psnr": 9.10098895877556,
     "jacobian_cv": 0.5715261513960491,
     "boundary_penalty": 0.08606666666666667,
     "paper_pattern_path": "figures/paper_pattern_fig3_mona.png",
@@ -26,8 +26,8 @@
       "phi": 3.141592653589793,
       "alpha_deg": 55.0
     },
-    "ssim": 0.1976671404661453,
-    "psnr": 18.4009164232571,
+    "ssim": 0.1648224367466328,
+    "psnr": 18.495973684086216,
     "jacobian_cv": 0.5694097590994788,
     "boundary_penalty": 0.0,
     "paper_pattern_path": "figures/paper_pattern_fig4_cat.png",

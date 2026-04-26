@@ -6,39 +6,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-fig, axes = plt.subplots(1, 4, figsize=(13, 4))
+from PIL import Image as PILImage
 
-imgs = [
-    ('user_data/图3.png', '目标镜面图案\n(蒙娜丽莎)'),
-    ('figures/paper_pattern_fig3_mona.png', '纸面变形图案\n$I_P$'),
-    ('figures/mirror_sim_fig3_mona.png', '正向仿真恢复\n$I_{\mathrm{sim}}$'),
-    (None, '误差热图\n$|I_{\mathrm{sim}}-I_M^*|$'),
+# 统一显示尺寸：以目标图为基准
+target_raw = np.array(PILImage.open('user_data/图3.png').convert('L'))
+H_ref, W_ref = target_raw.shape
+
+def load_gray_resized(path):
+    img = PILImage.open(path).convert('L')
+    img = img.resize((W_ref, H_ref), PILImage.LANCZOS)
+    return np.array(img).astype(float)
+
+target = target_raw.astype(float)
+paper  = load_gray_resized('figures/paper_pattern_fig3_mona.png')
+sim    = load_gray_resized('figures/mirror_sim_fig3_mona.png')
+err    = np.abs(sim - target)
+
+# 计算真实 SSIM/PSNR
+from skimage.metrics import structural_similarity as ssim_fn, peak_signal_noise_ratio as psnr_fn
+ssim_val = ssim_fn(target.astype(np.uint8), sim.astype(np.uint8), data_range=255)
+psnr_val = psnr_fn(target.astype(np.uint8), sim.astype(np.uint8), data_range=255)
+
+panels = [
+    (target, 'gray',   '目标镜面图案\n(蒙娜丽莎)',   None),
+    (paper,  'gray',   '纸面变形图案\n$I_P$',         None),
+    (sim,    'gray',   '正向仿真恢复\n$I_{\\mathrm{sim}}$', None),
+    (err,    'YlOrRd', '误差热图\n$|I_{\\mathrm{sim}}-I_M^*|$', (0, 80)),
 ]
 
-target = None
-sim = None
-for j, (path, label) in enumerate(imgs):
+fig, axes = plt.subplots(1, 4, figsize=(13, 4.5))
+for j, (data, cmap, label, clim) in enumerate(panels):
     ax = axes[j]
-    if path and os.path.exists(path):
-        img = np.array(Image.open(path).convert('L'))
-        if j == 0:
-            target = img.astype(float)
-        elif j == 2:
-            sim = img.astype(float)
-        ax.imshow(img, cmap='gray', aspect='auto')
-    elif j == 3 and target is not None and sim is not None:
-        # resize sim to match target
-        from PIL import Image as PILImage
-        sim_img = PILImage.fromarray(sim.astype(np.uint8)).resize(
-            (target.shape[1], target.shape[0]), PILImage.BILINEAR)
-        sim_r = np.array(sim_img).astype(float)
-        err = np.abs(sim_r - target)
-        im = ax.imshow(err, cmap='YlOrRd', aspect='auto', vmin=0, vmax=100)
-        plt.colorbar(im, ax=ax, shrink=0.8, label='误差值')
-    else:
-        ax.text(0.5, 0.5, '图像\n不可用', ha='center', va='center',
-                transform=ax.transAxes, fontsize=10, color=COLORS['ref_line'])
-        ax.set_facecolor('#f5f5f5')
+    kwargs = dict(cmap=cmap, aspect='equal')
+    if clim:
+        kwargs['vmin'], kwargs['vmax'] = clim
+    im = ax.imshow(data, **kwargs)
+    if clim:
+        plt.colorbar(im, ax=ax, shrink=0.75, label='误差值')
     ax.set_xlabel(label, fontsize=9)
     ax.set_xticks([]); ax.set_yticks([])
     ax.text(-0.05, 1.04, f'({chr(97+j)})', transform=ax.transAxes,
@@ -46,8 +50,7 @@ for j, (path, label) in enumerate(imgs):
             bbox=dict(boxstyle='round,pad=0.2', facecolor=COLORS['bg_box'],
                       edgecolor=COLORS['grid'], alpha=0.9))
 
-# SSIM标注
-axes[2].text(0.5, -0.18, 'SSIM = -0.236\nPSNR = 8.86 dB',
+axes[2].text(0.5, -0.20, f'SSIM = {ssim_val:.3f}\nPSNR = {psnr_val:.2f} dB',
              ha='center', va='top', transform=axes[2].transAxes,
              fontsize=8, color=COLORS['text'],
              bbox=dict(boxstyle='round,pad=0.3', facecolor='white',

@@ -20,57 +20,83 @@ def inverse_map(theta, h, R, x0, y0, phi, alpha):
     return xp, yp
 
 def generate_paper_pattern(mirror_img_arr, R, x0, y0, H, phi, alpha,
-                            N_theta=400, N_h=300, dpi=10.0):
+                            N_theta=600, N_h=400, dpi=5.0):
     """
-    逆映射：将镜面图案映射到纸面
-    dpi: 像素/mm
-    返回纸面图案 (numpy array, uint8)
+    逆映射：将镜面图案映射到纸面（反向查找，避免空洞）
+    对纸面每个像素，找最近的镜面展开坐标，双线性插值取色
     """
     pw = int(A4_W * dpi)
     ph = int(A4_H * dpi)
-    paper = np.ones((ph, pw, 3), dtype=np.float32) * 255.0
 
     mh, mw = mirror_img_arr.shape[:2]
     thetas = np.linspace(0, 2 * np.pi, N_theta, endpoint=False)
     hs = np.linspace(0, H, N_h)
-
     TH, HH = np.meshgrid(thetas, hs)  # (N_h, N_theta)
     xp, yp = inverse_map(TH, HH, R, x0, y0, phi, alpha)
 
-    # 镜面展开坐标 -> 像素索引
-    mi = (TH / (2 * np.pi) * mw).astype(int) % mw
-    mj = ((1 - HH / H) * (mh - 1)).astype(int)
-    mj = np.clip(mj, 0, mh - 1)
+    # 镜面展开坐标 -> 像素索引（浮点）
+    mi = (TH / (2 * np.pi) * mw) % mw   # (N_h, N_theta)
+    mj = (1 - HH / H) * (mh - 1)
 
-    # 纸面像素索引
-    pxi = (xp * dpi).astype(int)
-    pyi = (yp * dpi).astype(int)
+    # 纸面像素坐标（浮点）
+    pxf = xp * dpi  # (N_h, N_theta)
+    pyf = yp * dpi
 
-    mask = (pxi >= 0) & (pxi < pw) & (pyi >= 0) & (pyi < ph)
-    paper[pyi[mask], pxi[mask]] = mirror_img_arr[mj[mask], mi[mask], :3].astype(np.float32)
+    # 构建纸面坐标 -> 镜面坐标的查找表（散点插值）
+    mask = (pxf >= 0) & (pxf < pw) & (pyf >= 0) & (pyf < ph)
+    pxf_v = pxf[mask].ravel()
+    pyf_v = pyf[mask].ravel()
+    mi_v  = mi[mask].ravel()
+    mj_v  = mj[mask].ravel()
 
-    return paper.astype(np.uint8)
+    # 对纸面每个像素用 griddata 插值镜面坐标
+    from scipy.interpolate import griddata
+    pts = np.column_stack([pxf_v, pyf_v])
+    grid_x, grid_y = np.meshgrid(np.arange(pw), np.arange(ph))
+
+    mi_grid = griddata(pts, mi_v, (grid_x, grid_y), method='linear', fill_value=-1)
+    mj_grid = griddata(pts, mj_v, (grid_x, grid_y), method='linear', fill_value=-1)
+
+    valid = (mi_grid >= 0) & (mj_grid >= 0)
+    mi_grid = np.clip(mi_grid, 0, mw - 1).astype(int)
+    mj_grid = np.clip(mj_grid, 0, mh - 1).astype(int)
+
+    paper = np.ones((ph, pw, 3), dtype=np.uint8) * 255
+    paper[valid] = mirror_img_arr[mj_grid[valid], mi_grid[valid], :3]
+
+    return paper
 
 def forward_map(paper_arr, R, x0, y0, H, phi, alpha,
-                N_theta=400, N_h=300, dpi=10.0):
+                N_theta=600, N_h=450, dpi=10.0):
     """
-    正向映射：从纸面图案仿真镜面图案（用于验证）
+    正向映射：从纸面图案仿真镜面图案（双线性插值，高质量）
     """
     pw = int(A4_W * dpi)
     ph = int(A4_H * dpi)
     mw, mh = N_theta, N_h
-    mirror_sim = np.ones((mh, mw, 3), dtype=np.float32) * 255.0
 
     thetas = np.linspace(0, 2 * np.pi, mw, endpoint=False)
     hs = np.linspace(0, H, mh)
     TH, HH = np.meshgrid(thetas, hs)
     xp, yp = inverse_map(TH, HH, R, x0, y0, phi, alpha)
 
-    pxi = (xp * dpi).astype(int)
-    pyi = (yp * dpi).astype(int)
-    mask = (pxi >= 0) & (pxi < pw) & (pyi >= 0) & (pyi < ph)
+    pxf = xp * dpi
+    pyf = yp * dpi
+    mask = (pxf >= 0) & (pxf < pw - 1) & (pyf >= 0) & (pyf < ph - 1)
 
-    mirror_sim[mask] = paper_arr[pyi[mask], pxi[mask], :3].astype(np.float32)
+    # 双线性插值
+    x0i = np.floor(pxf).astype(int)
+    y0i = np.floor(pyf).astype(int)
+    dx = (pxf - x0i)[..., np.newaxis]
+    dy = (pyf - y0i)[..., np.newaxis]
+
+    pa = paper_arr[:, :, :3].astype(np.float32)
+    mirror_sim = np.ones((mh, mw, 3), dtype=np.float32) * 255.0
+    m = mask
+    mirror_sim[m] = (pa[y0i[m],   x0i[m]]   * (1-dx[m]) * (1-dy[m]) +
+                     pa[y0i[m],   x0i[m]+1] * dx[m]     * (1-dy[m]) +
+                     pa[y0i[m]+1, x0i[m]]   * (1-dx[m]) * dy[m]     +
+                     pa[y0i[m]+1, x0i[m]+1] * dx[m]     * dy[m])
     return mirror_sim.astype(np.uint8)
 
 def compute_ssim(img1, img2):
@@ -143,13 +169,13 @@ def solve_problem1(img_path, label, params_init):
     R, x0, y0, H, phi, alpha = params_init
     print(f"  使用参数: R={R}, x0={x0}, y0={y0}, H={H}, phi={phi:.3f}, alpha={np.degrees(alpha):.1f}°")
 
-    # 生成纸面图案
+    # 生成纸面图案（反向插值，dpi=5）
     paper = generate_paper_pattern(img_arr, R, x0, y0, H, phi, alpha, dpi=5.0)
     paper_path = f"figures/paper_pattern_{label}.png"
     Image.fromarray(paper).save(paper_path)
-    print(f"  纸面图案已保存: {paper_path}")
+    print(f"  纸面图案已保存: {paper_path}, mean={paper.mean():.1f}")
 
-    # 正向验证
+    # 正向验证（同 dpi）
     sim = forward_map(paper, R, x0, y0, H, phi, alpha, dpi=5.0)
     sim_path = f"figures/mirror_sim_{label}.png"
     # resize sim to match original
